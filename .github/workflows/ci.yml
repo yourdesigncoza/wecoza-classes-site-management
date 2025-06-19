@@ -1,0 +1,112 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  php-lint:
+    name: PHP Lint
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php-version: ['7.4', '8.0', '8.1', '8.2']
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php-version }}
+        extensions: mbstring, intl
+        ini-values: post_max_size=256M, max_execution_time=180
+        coverage: xdebug
+        tools: php-cs-fixer, phpunit
+    
+    - name: Validate composer.json and composer.lock
+      run: composer validate --strict
+      continue-on-error: true
+    
+    - name: Cache Composer packages
+      id: composer-cache
+      uses: actions/cache@v3
+      with:
+        path: vendor
+        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-php-
+    
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress
+      continue-on-error: true
+    
+    - name: PHP Syntax Check
+      run: find . -name "*.php" -not -path "./vendor/*" -not -path "./node_modules/*" | xargs -I {} php -l {}
+
+  code-quality:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.1'
+        extensions: mbstring, intl
+        tools: phpcs, phpmd
+    
+    - name: WordPress Coding Standards
+      run: |
+        composer global require "wp-coding-standards/wpcs"
+        phpcs --config-set installed_paths $HOME/.composer/vendor/wp-coding-standards/wpcs
+        phpcs --standard=WordPress --extensions=php --ignore=vendor/,node_modules/ .
+      continue-on-error: true
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.1'
+    
+    - name: Security Check
+      run: |
+        composer global require enlightn/security-checker
+        security-checker security:check composer.lock
+      continue-on-error: true
+
+  wordpress-compatibility:
+    name: WordPress Compatibility
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        wordpress-version: ['5.0', '5.9', '6.0', '6.4']
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.1'
+    
+    - name: Setup WordPress Test Environment
+      run: |
+        bash bin/install-wp-tests.sh wordpress_test root '' localhost ${{ matrix.wordpress-version }}
+      continue-on-error: true
+    
+    - name: Run Plugin Tests
+      run: |
+        echo "WordPress ${{ matrix.wordpress-version }} compatibility check"
+        # Add actual test commands here when tests are implemented
+      continue-on-error: true

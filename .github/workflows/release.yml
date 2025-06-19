@@ -1,0 +1,93 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.1'
+    
+    - name: Get version from tag
+      id: get_version
+      run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+    
+    - name: Create release archive
+      run: |
+        # Create a clean copy without development files
+        mkdir -p release/wecoza-classes-site-management
+        
+        # Copy plugin files (exclude development files)
+        rsync -av --exclude='.git*' \
+                  --exclude='node_modules' \
+                  --exclude='vendor' \
+                  --exclude='.github' \
+                  --exclude='tests' \
+                  --exclude='phpunit.xml' \
+                  --exclude='composer.json' \
+                  --exclude='composer.lock' \
+                  --exclude='package.json' \
+                  --exclude='package-lock.json' \
+                  --exclude='webpack.config.js' \
+                  --exclude='gulpfile.js' \
+                  --exclude='Gruntfile.js' \
+                  --exclude='daily-updates' \
+                  --exclude='*.md' \
+                  . release/wecoza-classes-site-management/
+        
+        # Create zip file
+        cd release
+        zip -r wecoza-classes-site-management-${{ steps.get_version.outputs.VERSION }}.zip wecoza-classes-site-management/
+    
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ steps.get_version.outputs.VERSION }}
+        body: |
+          ## Changes in this Release
+          
+          ### New Features
+          - List new features here
+          
+          ### Bug Fixes
+          - List bug fixes here
+          
+          ### Improvements
+          - List improvements here
+          
+          ## Installation
+          
+          1. Download the `wecoza-classes-site-management-${{ steps.get_version.outputs.VERSION }}.zip` file
+          2. Upload to your WordPress site via Plugins > Add New > Upload Plugin
+          3. Activate the plugin
+          
+          ## Requirements
+          
+          - WordPress 5.0 or higher
+          - PHP 7.4 or higher
+        draft: false
+        prerelease: false
+    
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./release/wecoza-classes-site-management-${{ steps.get_version.outputs.VERSION }}.zip
+        asset_name: wecoza-classes-site-management-${{ steps.get_version.outputs.VERSION }}.zip
+        asset_content_type: application/zip

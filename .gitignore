@@ -1,0 +1,100 @@
+# WordPress Plugin .gitignore
+
+# WordPress core files
+wp-config.php
+wp-content/uploads/
+wp-content/blogs.dir/
+wp-content/upgrade/
+wp-content/backup-db/
+wp-content/advanced-cache.php
+wp-content/wp-cache-config.php
+wp-content/cache/
+wp-content/cache/supercache/
+
+# WordPress cache files
+*.log
+wp-content/cache/
+wp-content/w3tc-config/
+
+# Database dumps
+*.sql
+*.sql.gz
+
+# Environment files
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Node.js dependencies (if using build tools)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# Build outputs
+/dist/
+/build/
+*.min.js
+*.min.css
+
+# Composer dependencies
+/vendor/
+composer.lock
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Plugin specific
+debug.log
+error_log
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# Archive files
+*.zip
+*.tar.gz
+*.rar
+
+# Security files (never commit these)
+wp-config.php
+.htaccess
+auth.json
+
+# Development tools
+.phpunit.result.cache
+phpunit.xml
+.phpcs.xml
+.eslintrc.js
+.stylelintrc.js
+
+# Local development
+local-config.php
+wp-config-local.php
+
