@@ -29,30 +29,6 @@ $address = $site ? $site->getAddress() : (isset($form_data['address']) ? $form_d
 ?>
 
 <div class="wecoza-site-form-container">
-    <!-- Header -->
-    <div class="site-form-header mb-4">
-        <div class="row align-items-center">
-            <div class="col-md-8">
-                <h3 class="form-title mb-0">
-                    <?php if ($is_edit): ?>
-                        <i class="fas fa-edit text-primary"></i>
-                        <?php _e('Edit Site', 'wecoza-site-management'); ?>
-                        <small class="text-muted">#<?php echo esc_html($site_id); ?></small>
-                    <?php else: ?>
-                        <i class="fas fa-plus text-success"></i>
-                        <?php _e('Add New Site', 'wecoza-site-management'); ?>
-                    <?php endif; ?>
-                </h3>
-            </div>
-            <div class="col-md-4 text-end">
-                <a href="<?php echo esc_url(remove_query_arg(['action', 'site_id'])); ?>" 
-                   class="btn btn-outline-secondary">
-                    <i class="fas fa-arrow-left"></i> <?php _e('Back to List', 'wecoza-site-management'); ?>
-                </a>
-            </div>
-        </div>
-    </div>
-
     <!-- Error Messages -->
     <?php if (!empty($errors)): ?>
     <div class="alert alert-danger" role="alert">
@@ -71,9 +47,22 @@ $address = $site ? $site->getAddress() : (isset($form_data['address']) ? $form_d
     <!-- Site Form -->
     <div class="card">
         <div class="card-header">
-            <h5 class="card-title mb-0">
+
+                <h4 class="form-title mb-0">
+                    <?php if ($is_edit): ?>
+                        <i class="fas fa-edit text-primary"></i>
+                        <?php _e('Edit Site', 'wecoza-site-management'); ?>
+                        <small class="text-muted">#<?php echo esc_html($site_id); ?></small>
+                    <?php else: ?>
+                        <i class="fas fa-plus text-success"></i>
+                        <?php _e('Add New Client Site', 'wecoza-site-management'); ?>
+                    <?php endif; ?>
+                    
+                </h4>
+
+            <p class="mb-2 mb-md-0 mb-lg-2 text-body-tertiary">
                 <?php _e('Site Information', 'wecoza-site-management'); ?>
-            </h5>
+                    </p>
         </div>
         <div class="card-body">
             <form method="POST" id="site-form" class="needs-validation" novalidate>
