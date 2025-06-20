@@ -397,6 +397,52 @@ class SiteModel {
     }
 
     /**
+     * Get unique client count with optional filtering
+     *
+     * @param array $args Query arguments
+     * @return int
+     */
+    public static function getUniqueClientCount($args = []) {
+        $defaults = [
+            'search' => '',
+            'client_id' => null,
+        ];
+
+        $args = array_merge($defaults, $args);
+
+        try {
+            $db = DatabaseService::getInstance();
+            $where_conditions = [];
+            $params = [];
+
+            // Add search condition
+            if (!empty($args['search'])) {
+                $search = $db->escapeLike($args['search']);
+                $where_conditions[] = "(site_name ILIKE ? OR address ILIKE ?)";
+                $params[] = "%{$search}%";
+                $params[] = "%{$search}%";
+            }
+
+            // Add client filter
+            if (!empty($args['client_id'])) {
+                $where_conditions[] = "client_id = ?";
+                $params[] = intval($args['client_id']);
+            }
+
+            // Build WHERE clause
+            $where_clause = !empty($where_conditions) ? 'WHERE ' . implode(' AND ', $where_conditions) : '';
+
+            $sql = "SELECT COUNT(DISTINCT client_id) as unique_clients FROM sites {$where_clause}";
+            $result = $db->fetchRow($sql, $params);
+
+            return intval($result['unique_clients']);
+        } catch (\Exception $e) {
+            \WeCozaSiteManagement\plugin_log('Error getting unique client count: ' . $e->getMessage(), 'error');
+            return 0;
+        }
+    }
+
+    /**
      * Get sites by client ID
      *
      * @param int $client_id

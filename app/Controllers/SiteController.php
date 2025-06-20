@@ -70,6 +70,15 @@ class SiteController {
                 WECOZA_SITE_MANAGEMENT_VERSION,
                 true
             );
+
+            // Enqueue AJAX pagination script for sites list
+            wp_enqueue_script(
+                'wecoza-sites-pagination',
+                \WeCozaSiteManagement\asset_url('js/sites-table-pagination.js'),
+                ['jquery', 'wecoza-site-management'],
+                WECOZA_SITE_MANAGEMENT_VERSION,
+                true
+            );
             
             // Localize script for AJAX
             wp_localize_script(
@@ -135,7 +144,10 @@ class SiteController {
             // Get sites and total count
             $sites = SiteModel::getAll($query_args);
             $total_sites = SiteModel::getCount($query_args);
-            
+
+            // Get unique client count from entire filtered dataset
+            $unique_clients = SiteModel::getUniqueClientCount($query_args);
+
             // Calculate pagination
             $total_pages = ceil($total_sites / $query_args['per_page']);
             
@@ -159,6 +171,7 @@ class SiteController {
                 'sites' => $sites,
                 'clients' => $clients,
                 'total_sites' => $total_sites,
+                'unique_clients' => $unique_clients,
                 'current_page' => $current_page,
                 'total_pages' => $total_pages,
                 'per_page' => $query_args['per_page'],
@@ -423,6 +436,7 @@ class SiteController {
 
             $sites = SiteModel::getAll($query_args);
             $total_sites = SiteModel::getCount($query_args);
+            $unique_clients = SiteModel::getUniqueClientCount($query_args);
 
             // Get clients for display
             $clients = [];
@@ -445,6 +459,7 @@ class SiteController {
                     'sites' => array_map(function($site) { return $site->toArray(); }, $sites),
                     'clients' => array_map(function($client) { return $client->toArray(); }, $clients),
                     'total' => $total_sites,
+                    'unique_clients' => $unique_clients,
                     'page' => $page,
                     'per_page' => $per_page,
                     'total_pages' => ceil($total_sites / $per_page),
