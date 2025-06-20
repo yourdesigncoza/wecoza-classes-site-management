@@ -109,7 +109,7 @@ class SiteController {
     public function sitesListShortcode($atts) {
         // Check user capabilities
         if (!current_user_can('read')) {
-            return '<div class="alert alert-warning">' . 
+            return '<div class="alert alert-subtle-warning">' . 
                    __('You do not have permission to view sites.', 'wecoza-site-management') . 
                    '</div>';
         }
@@ -187,7 +187,7 @@ class SiteController {
             
         } catch (\Exception $e) {
             \WeCozaSiteManagement\plugin_log('Error in sitesListShortcode: ' . $e->getMessage(), 'error');
-            return '<div class="alert alert-danger">' . 
+            return '<div class="alert alert-subtle-danger">' . 
                    __('Error loading sites. Please try again later.', 'wecoza-site-management') . 
                    '</div>';
         }
@@ -202,7 +202,7 @@ class SiteController {
     public function siteFormShortcode($atts) {
         // Check user capabilities
         if (!current_user_can('edit_posts')) {
-            return '<div class="alert alert-warning">' . 
+            return '<div class="alert alert-subtle-warning">' . 
                    __('You do not have permission to create or edit sites.', 'wecoza-site-management') . 
                    '</div>';
         }
@@ -229,7 +229,7 @@ class SiteController {
             if ($site_id) {
                 $site = SiteModel::find($site_id);
                 if (!$site) {
-                    return '<div class="alert alert-danger">' . 
+                    return '<div class="alert alert-subtle-danger">' . 
                            __('Site not found.', 'wecoza-site-management') . 
                            '</div>';
                 }
@@ -255,7 +255,7 @@ class SiteController {
             
         } catch (\Exception $e) {
             \WeCozaSiteManagement\plugin_log('Error in siteFormShortcode: ' . $e->getMessage(), 'error');
-            return '<div class="alert alert-danger">' . 
+            return '<div class="alert alert-subtle-danger">' . 
                    __('Error loading form. Please try again later.', 'wecoza-site-management') . 
                    '</div>';
         }
@@ -270,7 +270,7 @@ class SiteController {
     public function siteDetailsShortcode($atts) {
         // Check user capabilities
         if (!current_user_can('read')) {
-            return '<div class="alert alert-warning">' . 
+            return '<div class="alert alert-subtle-warning">' . 
                    __('You do not have permission to view site details.', 'wecoza-site-management') . 
                    '</div>';
         }
@@ -287,7 +287,7 @@ class SiteController {
                    (isset($_GET['site_id']) ? intval($_GET['site_id']) : null);
         
         if (!$site_id) {
-            return '<div class="alert alert-warning">' . 
+            return '<div class="alert alert-subtle-warning">' . 
                    __('No site ID provided.', 'wecoza-site-management') . 
                    '</div>';
         }
@@ -296,7 +296,7 @@ class SiteController {
             // Load site data
             $site = SiteModel::find($site_id);
             if (!$site) {
-                return '<div class="alert alert-danger">' . 
+                return '<div class="alert alert-subtle-danger">' . 
                        __('Site not found.', 'wecoza-site-management') . 
                        '</div>';
             }
@@ -319,7 +319,7 @@ class SiteController {
             
         } catch (\Exception $e) {
             \WeCozaSiteManagement\plugin_log('Error in siteDetailsShortcode: ' . $e->getMessage(), 'error');
-            return '<div class="alert alert-danger">' .
+            return '<div class="alert alert-subtle-danger">' .
                    __('Error loading site details. Please try again later.', 'wecoza-site-management') .
                    '</div>';
         }
@@ -334,7 +334,7 @@ class SiteController {
     private function handleFormSubmission($atts) {
         // Verify nonce
         if (!wp_verify_nonce($_POST['wecoza_site_nonce'], 'wecoza_site_management_nonce')) {
-            return '<div class="alert alert-danger">' .
+            return '<div class="alert alert-subtle-danger">' .
                    __('Security check failed. Please try again.', 'wecoza-site-management') .
                    '</div>';
         }
@@ -352,7 +352,7 @@ class SiteController {
             $site = $form_data['site_id'] ? SiteModel::find($form_data['site_id']) : new SiteModel();
 
             if ($form_data['site_id'] && !$site) {
-                return '<div class="alert alert-danger">' .
+                return '<div class="alert alert-subtle-danger">' .
                        __('Site not found.', 'wecoza-site-management') .
                        '</div>';
             }
@@ -392,16 +392,16 @@ class SiteController {
                     exit;
                 }
 
-                return '<div class="alert alert-success">' . $success_message . '</div>';
+                return '<div class="alert alert-subtle-success">' . $success_message . '</div>';
             } else {
-                return '<div class="alert alert-danger">' .
+                return '<div class="alert alert-subtle-danger">' .
                        __('Failed to save site. Please try again.', 'wecoza-site-management') .
                        '</div>';
             }
 
         } catch (\Exception $e) {
             \WeCozaSiteManagement\plugin_log('Error handling form submission: ' . $e->getMessage(), 'error');
-            return '<div class="alert alert-danger">' .
+            return '<div class="alert alert-subtle-danger">' .
                    __('An error occurred while saving. Please try again.', 'wecoza-site-management') .
                    '</div>';
         }

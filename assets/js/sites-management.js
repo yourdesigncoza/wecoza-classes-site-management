@@ -370,11 +370,11 @@
                 if (response.success) {
                     modalBody.html(formatSiteDetailsHTML(response.data));
                 } else {
-                    modalBody.html(`<div class="alert alert-danger">${response.data || 'Failed to load site details.'}</div>`);
+                    modalBody.html(`<div class="alert alert-subtle-danger">${response.data || 'Failed to load site details.'}</div>`);
                 }
             })
             .fail(function() {
-                modalBody.html('<div class="alert alert-danger">Failed to load site details.</div>');
+                modalBody.html('<div class="alert alert-subtle-danger">Failed to load site details.</div>');
             });
     }
 
@@ -544,7 +544,7 @@
 
     function showNotification(message, type) {
         const alertHTML = `
-            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+            <div class="alert alert-subtle-${type} alert-dismissible fade show" role="alert">
                 ${escapeHtml(message)}
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
@@ -567,7 +567,7 @@
     function getNoResultsHTML(search) {
         if (search) {
             return `
-                <div class="alert alert-info d-flex align-items-center">
+                <div class="alert alert-subtle-info d-flex align-items-center">
                     <i class="bi bi-info-circle-fill me-3 fs-4"></i>
                     <div>
                         <h6 class="alert-heading mb-1">No Sites Found</h6>
@@ -577,7 +577,7 @@
             `;
         } else {
             return `
-                <div class="alert alert-info d-flex align-items-center">
+                <div class="alert alert-subtle-info d-flex align-items-center">
                     <i class="bi bi-info-circle-fill me-3 fs-4"></i>
                     <div>
                         <h6 class="alert-heading mb-1">No Sites Found</h6>

@@ -20,7 +20,7 @@ $can_edit = isset($can_edit) ? $can_edit : false;
 $can_delete = isset($can_delete) ? $can_delete : false;
 
 if (!$site) {
-    echo '<div class="alert alert-danger">' . __('Site data not available.', 'wecoza-site-management') . '</div>';
+    echo '<div class="alert alert-subtle-danger">' . __('Site data not available.', 'wecoza-site-management') . '</div>';
     return;
 }
 ?>
@@ -175,78 +175,6 @@ if (!$site) {
         </div>
     </div>
 
-    <!-- Actions Card -->
-    <?php if ($can_edit || $can_delete): ?>
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">
-                        <i class="fas fa-cogs"></i>
-                        <?php _e('Actions', 'wecoza-site-management'); ?>
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <?php if ($can_edit): ?>
-                        <div class="col-md-6 mb-3">
-                            <div class="d-grid">
-                                <a href="<?php echo esc_url(add_query_arg(['action' => 'edit', 'site_id' => $site->getSiteId()])); ?>" 
-                                   class="btn btn-outline-primary btn-lg">
-                                    <i class="fas fa-edit"></i>
-                                    <?php _e('Edit Site Information', 'wecoza-site-management'); ?>
-                                </a>
-                            </div>
-                            <small class="text-muted">
-                                <?php _e('Modify site name, client assignment, or address.', 'wecoza-site-management'); ?>
-                            </small>
-                        </div>
-                        <?php endif; ?>
-
-                        <?php if ($can_delete): ?>
-                        <div class="col-md-6 mb-3">
-                            <div class="d-grid">
-                                <button type="button" 
-                                        class="btn btn-outline-danger btn-lg btn-delete-site" 
-                                        data-site-id="<?php echo esc_attr($site->getSiteId()); ?>"
-                                        data-site-name="<?php echo esc_attr($site->getSiteName()); ?>">
-                                    <i class="fas fa-trash"></i>
-                                    <?php _e('Delete Site', 'wecoza-site-management'); ?>
-                                </button>
-                            </div>
-                            <small class="text-muted">
-                                <?php _e('Permanently remove this site from the system.', 'wecoza-site-management'); ?>
-                            </small>
-                        </div>
-                        <?php endif; ?>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <?php endif; ?>
-
-    <!-- Additional Information -->
-    <div class="row mt-4">
-        <div class="col-12">
-            <div class="alert alert-info">
-                <h6 class="alert-heading">
-                    <i class="fas fa-lightbulb"></i>
-                    <?php _e('Quick Tips', 'wecoza-site-management'); ?>
-                </h6>
-                <ul class="mb-0">
-                    <li><?php _e('Use the edit button to modify site information.', 'wecoza-site-management'); ?></li>
-                    <li><?php _e('Site names should be descriptive and unique within each client.', 'wecoza-site-management'); ?></li>
-                    <li><?php _e('Address information helps with location-based organization.', 'wecoza-site-management'); ?></li>
-                    <?php if ($can_delete): ?>
-                    <li class="text-danger">
-                        <?php _e('Deleting a site is permanent and cannot be undone.', 'wecoza-site-management'); ?>
-                    </li>
-                    <?php endif; ?>
-                </ul>
-            </div>
-        </div>
-    </div>
 </div>
 
 <!-- Delete Confirmation Modal -->
@@ -264,7 +192,7 @@ if (!$site) {
                 <p class="mb-3">
                     <?php _e('Are you sure you want to delete this site?', 'wecoza-site-management'); ?>
                 </p>
-                <div class="alert alert-warning">
+                <div class="alert alert-subtle-warning">
                     <strong><?php _e('Warning:', 'wecoza-site-management'); ?></strong>
                     <?php _e('This action cannot be undone. All data associated with this site will be permanently removed.', 'wecoza-site-management'); ?>
                 </div>

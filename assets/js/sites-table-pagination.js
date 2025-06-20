@@ -453,7 +453,7 @@
             $tableBody.html(`
                 <tr>
                     <td colspan="6" class="text-center py-4">
-                        <div class="alert alert-danger mb-0">
+                        <div class="alert alert-subtle-danger mb-0">
                             <i class="bi bi-exclamation-triangle me-2"></i>
                             ${message}
                         </div>

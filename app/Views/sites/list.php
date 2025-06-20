@@ -32,7 +32,7 @@ $can_delete = isset($can_delete) ? $can_delete : false;
         <!-- Sites Table Card (always show for consistency) -->
         <?php if (empty($sites) && empty($search)): ?>
             <!-- No Sites Found (only when no search) -->
-            <div class="alert alert-info d-flex align-items-center">
+            <div class="alert alert-subtle-info d-flex align-items-center">
                 <i class="bi bi-info-circle-fill me-3 fs-4"></i>
                 <div>
                     <h6 class="alert-heading mb-1"><?php _e('No Sites Found', 'wecoza-site-management'); ?></h6>
@@ -74,7 +74,7 @@ $can_delete = isset($can_delete) ? $can_delete : false;
                                     <i class="bi bi-arrow-clockwise ms-1"></i>
                                 </button>
                                 <?php if ($can_edit): ?>
-                                <a href="<?php echo esc_url(add_query_arg('action', 'create', remove_query_arg(['sites_search', 'sites_page']))); ?>"
+                                <a href="<?php echo esc_url(add_query_arg('action', 'create', remove_query_arg(['sites_search', 'sites_page', 'site_id']))); ?>"
                                    class="btn btn-primary btn-sm">
                                     <i class="bi bi-plus-circle me-1"></i>
                                     <?php _e('Add New Site', 'wecoza-site-management'); ?>
@@ -345,12 +345,12 @@ function loadSiteDetailsModal(siteId) {
                 if (data.success) {
                     modalBody.innerHTML = data.data;
                 } else {
-                    modalBody.innerHTML = '<div class="alert alert-danger">Failed to load site details.</div>';
+                    modalBody.innerHTML = '<div class="alert alert-subtle-danger">Failed to load site details.</div>';
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                modalBody.innerHTML = '<div class="alert alert-danger">An error occurred while loading site details.</div>';
+                modalBody.innerHTML = '<div class="alert alert-subtle-danger">An error occurred while loading site details.</div>';
             });
         }
     }

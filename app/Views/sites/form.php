@@ -31,7 +31,7 @@ $address = $site ? $site->getAddress() : (isset($form_data['address']) ? $form_d
 <div class="wecoza-site-form-container">
     <!-- Error Messages -->
     <?php if (!empty($errors)): ?>
-    <div class="alert alert-danger" role="alert">
+    <div class="alert alert-subtle-danger" role="alert">
         <h6 class="alert-heading">
             <i class="fas fa-exclamation-triangle"></i>
             <?php _e('Please correct the following errors:', 'wecoza-site-management'); ?>
@@ -189,48 +189,7 @@ $address = $site ? $site->getAddress() : (isset($form_data['address']) ? $form_d
         </div>
     </div>
 
-    <!-- Additional Information -->
-    <?php if ($is_edit && $site): ?>
-    <div class="card mt-4">
-        <div class="card-header">
-            <h6 class="card-title mb-0">
-                <i class="fas fa-info-circle"></i>
-                <?php _e('Site Information', 'wecoza-site-management'); ?>
-            </h6>
-        </div>
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-6">
-                    <dl class="row">
-                        <dt class="col-sm-4"><?php _e('Site ID:', 'wecoza-site-management'); ?></dt>
-                        <dd class="col-sm-8"><?php echo esc_html($site->getSiteId()); ?></dd>
-                        
-                        <dt class="col-sm-4"><?php _e('Created:', 'wecoza-site-management'); ?></dt>
-                        <dd class="col-sm-8">
-                            <?php if ($site->getCreatedAt()): ?>
-                                <?php echo esc_html(date_i18n(get_option('date_format') . ' ' . get_option('time_format'), strtotime($site->getCreatedAt()))); ?>
-                            <?php else: ?>
-                                <span class="text-muted"><?php _e('Unknown', 'wecoza-site-management'); ?></span>
-                            <?php endif; ?>
-                        </dd>
-                    </dl>
-                </div>
-                <div class="col-md-6">
-                    <dl class="row">
-                        <dt class="col-sm-4"><?php _e('Last Updated:', 'wecoza-site-management'); ?></dt>
-                        <dd class="col-sm-8">
-                            <?php if ($site->getUpdatedAt()): ?>
-                                <?php echo esc_html(date_i18n(get_option('date_format') . ' ' . get_option('time_format'), strtotime($site->getUpdatedAt()))); ?>
-                            <?php else: ?>
-                                <span class="text-muted"><?php _e('Never', 'wecoza-site-management'); ?></span>
-                            <?php endif; ?>
-                        </dd>
-                    </dl>
-                </div>
-            </div>
-        </div>
-    </div>
-    <?php endif; ?>
+
 </div>
 
 <!-- Loading Overlay -->
