@@ -43,6 +43,7 @@ if (!$site) {
                 <?php endif; ?>
             </div>
             <div class="col-md-4 text-end">
+                <!--
                 <div class="btn-group">
                     <a href="<?php echo esc_url(remove_query_arg(['action', 'site_id'])); ?>" 
                        class="btn btn-outline-secondary">
@@ -63,6 +64,17 @@ if (!$site) {
                         </button>
                     <?php endif; ?>
                 </div>
+                -->
+                    <?php if ($show_delete_link && $can_delete): ?>
+                        <button type="button" 
+                                class="btn btn-danger btn-delete-site" 
+                                data-site-id="<?php echo esc_attr($site->getSiteId()); ?>"
+                                data-site-name="<?php echo esc_attr($site->getSiteName()); ?>">
+                            <i class="fas fa-trash"></i> <?php _e('Delete', 'wecoza-site-management'); ?>
+                        </button>
+                    <?php endif; ?>
+
+
             </div>
         </div>
     </div>
@@ -93,7 +105,7 @@ if (!$site) {
                         <dt class="col-sm-3"><?php _e('Client:', 'wecoza-site-management'); ?></dt>
                         <dd class="col-sm-9">
                             <?php if ($client): ?>
-                                <span class="badge bg-info text-dark">
+                                <span class="badge badge-phoenix badge-phoenix-primary">
                                     <?php echo esc_html($client->getClientName()); ?>
                                 </span>
                                 <small class="text-muted ms-2">ID: <?php echo esc_html($site->getClientId()); ?></small>
@@ -177,102 +189,151 @@ if (!$site) {
 
 </div>
 
-<!-- Delete Confirmation Modal -->
-<div class="modal fade" id="deleteSiteModal" tabindex="-1" aria-labelledby="deleteSiteModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title" id="deleteSiteModalLabel">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <?php _e('Confirm Site Deletion', 'wecoza-site-management'); ?>
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p class="mb-3">
-                    <?php _e('Are you sure you want to delete this site?', 'wecoza-site-management'); ?>
-                </p>
-                <div class="alert alert-subtle-warning">
-                    <strong><?php _e('Warning:', 'wecoza-site-management'); ?></strong>
-                    <?php _e('This action cannot be undone. All data associated with this site will be permanently removed.', 'wecoza-site-management'); ?>
-                </div>
-                <p class="mb-0">
-                    <strong><?php _e('Site to delete:', 'wecoza-site-management'); ?></strong>
-                    <span id="delete-site-name" class="text-danger"></span>
-                </p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    <i class="fas fa-times"></i>
-                    <?php _e('Cancel', 'wecoza-site-management'); ?>
-                </button>
-                <button type="button" class="btn btn-danger" id="confirm-delete-site">
-                    <i class="fas fa-trash"></i>
-                    <?php _e('Delete Site', 'wecoza-site-management'); ?>
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
 <script>
-// Delete confirmation functionality
+// Delete confirmation functionality - Single confirmation pattern
 document.addEventListener('DOMContentLoaded', function() {
     const deleteButtons = document.querySelectorAll('.btn-delete-site');
-    const deleteModal = new bootstrap.Modal(document.getElementById('deleteSiteModal'));
-    const confirmDeleteBtn = document.getElementById('confirm-delete-site');
-    const deleteSiteNameSpan = document.getElementById('delete-site-name');
-    
-    let siteToDelete = null;
-    
+
     deleteButtons.forEach(button => {
         button.addEventListener('click', function() {
-            siteToDelete = {
-                id: this.getAttribute('data-site-id'),
-                name: this.getAttribute('data-site-name')
-            };
-            
-            deleteSiteNameSpan.textContent = siteToDelete.name;
-            deleteModal.show();
-        });
-    });
-    
-    if (confirmDeleteBtn) {
-        confirmDeleteBtn.addEventListener('click', function() {
-            if (siteToDelete && typeof wecoza_site_management_ajax !== 'undefined') {
-                // Disable button and show loading
-                this.disabled = true;
-                this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <?php echo esc_js(__("Deleting...", "wecoza-site-management")); ?>';
-                
-                // Perform AJAX delete
-                const formData = new FormData();
-                formData.append('action', 'wecoza_delete_site');
-                formData.append('nonce', wecoza_site_management_ajax.nonce);
-                formData.append('site_id', siteToDelete.id);
-                
-                fetch(wecoza_site_management_ajax.ajax_url, {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Redirect to list page
-                        window.location.href = '<?php echo esc_url(remove_query_arg(["action", "site_id"])); ?>';
-                    } else {
-                        alert(data.data || '<?php echo esc_js(__("Failed to delete site.", "wecoza-site-management")); ?>');
-                        this.disabled = false;
-                        this.innerHTML = '<i class="fas fa-trash"></i> <?php echo esc_js(__("Delete Site", "wecoza-site-management")); ?>';
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('<?php echo esc_js(__("An error occurred while deleting the site.", "wecoza-site-management")); ?>');
-                    this.disabled = false;
-                    this.innerHTML = '<i class="fas fa-trash"></i> <?php echo esc_js(__("Delete Site", "wecoza-site-management")); ?>';
-                });
+            const siteId = this.getAttribute('data-site-id');
+            const siteName = this.getAttribute('data-site-name');
+
+            // Single confirmation dialog
+            const confirmMessage = `<?php echo esc_js(__('Are you sure you want to delete this site?', 'wecoza-site-management')); ?>\n\n<?php echo esc_js(__('Site:', 'wecoza-site-management')); ?> ${siteName}\n\n<?php echo esc_js(__('Warning: This action cannot be undone. All data associated with this site will be permanently removed.', 'wecoza-site-management')); ?>`;
+
+            if (confirm(confirmMessage)) {
+                deleteSite(siteId, this);
             }
         });
+    });
+
+    /**
+     * Delete a site via AJAX
+     */
+    function deleteSite(siteId, button) {
+        if (!siteId || typeof wecoza_site_management_ajax === 'undefined') {
+            showError('<?php echo esc_js(__("Unable to delete site. Missing required data.", "wecoza-site-management")); ?>');
+            return;
+        }
+
+        // Store original button state
+        const originalHTML = button.innerHTML;
+        const originalDisabled = button.disabled;
+
+        // Show loading state
+        button.disabled = true;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <?php echo esc_js(__("Deleting...", "wecoza-site-management")); ?>';
+
+        // Prepare AJAX data
+        const formData = new FormData();
+        formData.append('action', 'wecoza_delete_site');
+        formData.append('nonce', wecoza_site_management_ajax.nonce);
+        formData.append('site_id', siteId);
+
+        // Perform AJAX delete
+        fetch(wecoza_site_management_ajax.ajax_url, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                // Show success message
+                showSuccess('<?php echo esc_js(__("Site deleted successfully!", "wecoza-site-management")); ?>');
+
+                // Redirect to list page after a short delay
+                setTimeout(function() {
+                    window.location.href = '<?php echo esc_url(remove_query_arg(["action", "site_id"])); ?>';
+                }, 1500);
+            } else {
+                // Show error message
+                const errorMessage = data.data || '<?php echo esc_js(__("Failed to delete site.", "wecoza-site-management")); ?>';
+                showError(errorMessage);
+
+                // Restore button state
+                button.disabled = originalDisabled;
+                button.innerHTML = originalHTML;
+            }
+        })
+        .catch(error => {
+            console.error('Delete site error:', error);
+
+            // Show error message
+            showError('<?php echo esc_js(__("An error occurred while deleting the site. Please try again.", "wecoza-site-management")); ?>');
+
+            // Restore button state
+            button.disabled = originalDisabled;
+            button.innerHTML = originalHTML;
+        });
+    }
+
+    /**
+     * Show success message
+     */
+    function showSuccess(message) {
+        showNotification(message, 'success');
+    }
+
+    /**
+     * Show error message
+     */
+    function showError(message) {
+        showNotification(message, 'danger');
+    }
+
+    /**
+     * Show notification message
+     */
+    function showNotification(message, type) {
+        // Remove any existing notifications
+        const existingAlerts = document.querySelectorAll('.wecoza-notification-alert');
+        existingAlerts.forEach(alert => alert.remove());
+
+        // Create notification HTML
+        const alertHTML = `
+            <div class="alert alert-subtle-${type} alert-dismissible fade show wecoza-notification-alert" role="alert">
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'}"></i>
+                ${escapeHtml(message)}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        `;
+
+        // Insert at top of container
+        const container = document.querySelector('.wecoza-site-details-container');
+        if (container) {
+            container.insertAdjacentHTML('afterbegin', alertHTML);
+
+            // Auto-dismiss after 5 seconds for success messages
+            if (type === 'success') {
+                setTimeout(function() {
+                    const alert = document.querySelector('.wecoza-notification-alert');
+                    if (alert) {
+                        alert.classList.remove('show');
+                        setTimeout(() => alert.remove(), 150);
+                    }
+                }, 5000);
+            }
+        }
+    }
+
+    /**
+     * Escape HTML to prevent XSS
+     */
+    function escapeHtml(text) {
+        const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        };
+        return text ? text.replace(/[&<>"']/g, function(m) { return map[m]; }) : '';
     }
 });
 </script>

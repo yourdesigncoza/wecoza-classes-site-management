@@ -253,9 +253,7 @@ $can_delete = isset($can_delete) ? $can_delete : false;
                                             ?>
                                                 <span class="badge bg-primary bg-opacity-10 text-primary">
                                                     <?php echo esc_html($client->getClientName()); ?>
-                                                </span>
-                                                <br>
-                                                <small class="text-muted">ID: <?php echo esc_html($site->getClientId()); ?></small>
+                                                </span> <small class="text-muted">ID: <?php echo esc_html($site->getClientId()); ?></small>
                                             <?php else: ?>
                                                 <span class="badge fs-10 badge-phoenix badge-phoenix-warning">
                                                     <?php _e('Unknown Client', 'wecoza-site-management'); ?>
@@ -292,6 +290,7 @@ $can_delete = isset($can_delete) ? $can_delete : false;
                                                     <i class="bi bi-three-dots"></i>
                                                 </button>
                                                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton<?php echo $site->getSiteId(); ?>">
+                                                <!--
                                                     <li>
                                                         <button type="button"
                                                                 class="dropdown-item btn-view-site"
@@ -300,6 +299,7 @@ $can_delete = isset($can_delete) ? $can_delete : false;
                                                             <i class="bi bi-eye ms-2"></i>
                                                         </button>
                                                     </li>
+                                                -->
                                                     <?php if ($can_edit): ?>
                                                     <li>
                                                         <a class="dropdown-item" href="<?php echo esc_url(add_query_arg(['action' => 'edit', 'site_id' => $site->getSiteId()])); ?>">
@@ -308,7 +308,9 @@ $can_delete = isset($can_delete) ? $can_delete : false;
                                                         </a>
                                                     </li>
                                                     <?php endif; ?>
+                                                <!--
                                                     <?php if ($can_delete): ?>
+                                                
                                                     <li><hr class="dropdown-divider"></li>
                                                     <li>
                                                         <button type="button"
@@ -320,6 +322,7 @@ $can_delete = isset($can_delete) ? $can_delete : false;
                                                         </button>
                                                     </li>
                                                     <?php endif; ?>
+                                                    -->
                                                 </ul>
                                             </div>
                                         </td>
