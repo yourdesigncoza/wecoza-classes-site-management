@@ -8,14 +8,10 @@
 (function($) {
     'use strict';
 
-    // Global variables
-    let isLoading = false;
-
     /**
      * Initialize the plugin
      */
     function init() {
-        initSearchFunctionality();
         initDeleteConfirmation();
         initViewSiteModal();
         initFormValidation();
@@ -23,274 +19,7 @@
         initTooltips();
     }
 
-    /**
-     * Initialize search functionality
-     */
-    function initSearchFunctionality() {
-        const searchForm = $('#sites-search-form');
-        const searchInput = $('#sites_search');
-        const refreshBtn = $('#refresh-sites');
 
-        if (searchInput.length) {
-            // Handle Enter key only - no auto-submit on input
-            searchInput.on('keypress', function(e) {
-                if (e.which === 13) {
-                    e.preventDefault();
-                    performSearch($(this).val().trim());
-                }
-            });
-        }
-
-        // Refresh button
-        if (refreshBtn.length) {
-            refreshBtn.on('click', function() {
-                refreshSitesList();
-            });
-        }
-
-        // Search form submission
-        if (searchForm.length) {
-            searchForm.on('submit', function(e) {
-                e.preventDefault();
-                performSearch(searchInput.val().trim());
-            });
-        }
-    }
-
-    /**
-     * Perform AJAX search
-     */
-    function performSearch(searchValue, page = 1) {
-        if (isLoading) return;
-
-        isLoading = true;
-        showLoading();
-
-        const data = {
-            action: 'wecoza_live_search_sites',
-            nonce: wecoza_site_management_ajax.nonce,
-            search: searchValue,
-            page: page,
-            per_page: 20
-        };
-
-        $.post(wecoza_site_management_ajax.ajax_url, data)
-            .done(function(response) {
-                if (response.success) {
-                    updateSitesTable(response.data);
-                    updatePagination(response.data);
-                } else {
-                    showError(response.data || wecoza_site_management_ajax.messages.error_occurred);
-                }
-            })
-            .fail(function() {
-                showError(wecoza_site_management_ajax.messages.error_occurred);
-            })
-            .always(function() {
-                hideLoading();
-                isLoading = false;
-            });
-    }
-
-    /**
-     * Update sites table with new data
-     */
-    function updateSitesTable(data) {
-        const container = $('#sites-table-container');
-
-        // Handle empty results without search - show alert only
-        if (data.sites.length === 0 && !data.search) {
-            container.html(getNoResultsHTML(data.search));
-            return;
-        }
-
-        // Calculate statistics
-        const totalSites = data.sites.length;
-        const uniqueClients = [...new Set(data.sites.map(site => site.client_id))].length;
-
-        let tableHTML = `
-            <div class="card shadow-none border my-3" data-component-card="data-component-card">
-                <div class="card-header p-3 border-bottom">
-                    <div class="row g-3 justify-content-between align-items-center mb-3">
-                        <div class="col-12 col-md">
-                            <h4 class="text-body mb-0" data-anchor="data-anchor" id="sites-table-header">
-                                Sites Management
-                                <i class="bi bi-building ms-2"></i>
-                            </h4>
-                        </div>
-                        <div class="col-auto">
-                            <div class="d-flex gap-2">
-                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="refreshSites()">
-                                    Refresh
-                                    <i class="bi bi-arrow-clockwise ms-1"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Summary strip -->
-                    <div class="col-12">
-                        <div class="scrollbar">
-                            <div class="row g-0 flex-nowrap">
-                                <div class="col-auto border-end pe-4">
-                                    <h6 class="text-body-tertiary">Total Sites : ${totalSites}</h6>
-                                </div>
-                                <div class="col-auto px-4 border-end">
-                                    <h6 class="text-body-tertiary">Active Sites : ${totalSites}</h6>
-                                </div>
-                                <div class="col-auto px-4 border-end">
-                                    <h6 class="text-body-tertiary">Unique Clients : ${uniqueClients}</h6>
-                                </div>
-                                ${data.search ? `<div class="col-auto px-4">
-                                    <h6 class="text-body-tertiary">Search Results : ${totalSites > 0 ? `${totalSites} <div class="badge badge-phoenix fs-10 badge-phoenix-info">filtered</div>` : '<span class="badge badge-phoenix fs-10 badge-phoenix-danger">No Search Results</span>'}</h6>
-                                </div>` : ''}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card-body p-4 py-2">
-                    <div class="table-responsive">
-                        <table id="sites-table" class="table table-hover table-sm fs-9 mb-0 overflow-hidden">
-                            <thead class="border-bottom">
-                                <tr>
-                                    <th scope="col" class="border-0 ps-4">
-                                        ID
-                                        <i class="bi bi-hash ms-1"></i>
-                                    </th>
-                                    <th scope="col" class="border-0">
-                                        Site Name
-                                        <i class="bi bi-building ms-1"></i>
-                                    </th>
-                                    <th scope="col" class="border-0">
-                                        Client
-                                        <i class="bi bi-person-badge ms-1"></i>
-                                    </th>
-                                    <th scope="col" class="border-0">
-                                        Address
-                                        <i class="bi bi-geo-alt ms-1"></i>
-                                    </th>
-                                    <th scope="col" class="border-0">
-                                        Created
-                                        <i class="bi bi-calendar-date ms-1"></i>
-                                    </th>
-                                    <th scope="col" class="border-0 pe-4">
-                                        Actions
-                                        <i class="bi bi-gear ms-1"></i>
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-        `;
-
-        // Handle empty search results
-        if (data.sites.length === 0 && data.search) {
-            tableHTML += `
-                <tr>
-                    <td colspan="6" class="text-center py-5">
-                        <div class="text-muted">
-                            <i class="bi bi-search fs-1 mb-3 d-block"></i>
-                            <h6 class="mb-2">No sites match your search</h6>
-                            <p class="mb-0">No sites found for "${escapeHtml(data.search)}"</p>
-                        </div>
-                    </td>
-                </tr>
-            `;
-        } else {
-            data.sites.forEach(function(site) {
-                const client = data.clients[site.client_id] || null;
-                const clientName = client ? client.client_name : 'Unknown Client';
-                const address = site.address ? truncateText(site.address, 30) : 'No address';
-                const createdDate = site.created_at ? formatDateShort(site.created_at) : '-';
-
-                tableHTML += `
-                    <tr data-site-id="${site.site_id}">
-                        <td class="py-2 align-middle text-center fs-8 white-space-nowrap">
-                            <span class="badge fs-10 badge-phoenix badge-phoenix-secondary">
-                                #${site.site_id}
-                            </span>
-                        </td>
-                        <td>
-                            <span class="fw-medium">
-                                ${escapeHtml(site.site_name)}
-                            </span>
-                        </td>
-                        <td>
-                            ${client ? `
-                                <span class="badge bg-primary bg-opacity-10 text-primary">
-                                    ${escapeHtml(clientName)}
-                                </span>
-                                <br>
-                                <small class="text-muted">ID: ${site.client_id}</small>
-                            ` : `
-                                <span class="badge fs-10 badge-phoenix badge-phoenix-warning">
-                                    Unknown Client
-                                    <i class="bi bi-exclamation-triangle ms-1"></i>
-                                </span>
-                            `}
-                        </td>
-                        <td>
-                            <span class="site-address text-nowrap" title="${escapeHtml(site.address || '')}">
-                                ${escapeHtml(address)}
-                            </span>
-                        </td>
-                        <td>
-                            <span class="text-nowrap">${createdDate}</span>
-                        </td>
-                        <td class="pe-4">
-                            <div class="dropdown">
-                                <button class="btn btn-link text-body btn-sm dropdown-toggle"
-                                        style="text-decoration: none;"
-                                        type="button"
-                                        id="dropdownMenuButton${site.site_id}"
-                                        data-bs-toggle="dropdown"
-                                        aria-expanded="false">
-                                    <i class="bi bi-three-dots"></i>
-                                </button>
-                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton${site.site_id}">
-                                    <li>
-                                        <button type="button" class="dropdown-item btn-view-site"
-                                                data-site-id="${site.site_id}">
-                                            View Details
-                                            <i class="bi bi-eye ms-2"></i>
-                                        </button>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" href="?action=edit&site_id=${site.site_id}">
-                                            Edit Site
-                                            <i class="bi bi-pencil ms-2"></i>
-                                        </a>
-                                    </li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li>
-                                        <button type="button" class="dropdown-item text-danger btn-delete-site"
-                                                data-site-id="${site.site_id}"
-                                                data-site-name="${escapeHtml(site.site_name)}">
-                                            Delete Site
-                                            <i class="bi bi-trash ms-2"></i>
-                                        </button>
-                                    </li>
-                                </ul>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-
-        tableHTML += `
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        `;
-
-        container.html(tableHTML);
-
-        // Reinitialize event handlers for new elements
-        initDeleteConfirmation();
-        initViewSiteModal();
-    }
 
     /**
      * Initialize delete confirmation
@@ -524,16 +253,6 @@
     /**
      * Utility functions
      */
-    function showLoading() {
-        $('#sites-loading').show();
-        $('#sites-table-container').hide();
-    }
-
-    function hideLoading() {
-        $('#sites-loading').hide();
-        $('#sites-table-container').show();
-    }
-
     function showSuccess(message) {
         showNotification(message, 'success');
     }
@@ -549,43 +268,15 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         `;
-        
+
         // Insert at top of container
         $('.wecoza-sites-list-container, .wecoza-site-form-container, .wecoza-site-details-container')
             .first().prepend(alertHTML);
-        
+
         // Auto-dismiss after 5 seconds
         setTimeout(function() {
             $('.alert').fadeOut();
         }, 5000);
-    }
-
-    function refreshSitesList() {
-        window.location.reload();
-    }
-
-    function getNoResultsHTML(search) {
-        if (search) {
-            return `
-                <div class="alert alert-subtle-info d-flex align-items-center">
-                    <i class="bi bi-info-circle-fill me-3 fs-4"></i>
-                    <div>
-                        <h6 class="alert-heading mb-1">No Sites Found</h6>
-                        <p class="mb-0">No sites match your search for "${escapeHtml(search)}".</p>
-                    </div>
-                </div>
-            `;
-        } else {
-            return `
-                <div class="alert alert-subtle-info d-flex align-items-center">
-                    <i class="bi bi-info-circle-fill me-3 fs-4"></i>
-                    <div>
-                        <h6 class="alert-heading mb-1">No Sites Found</h6>
-                        <p class="mb-0">There are currently no sites in the database. Create a new site to get started.</p>
-                    </div>
-                </div>
-            `;
-        }
     }
 
     function escapeHtml(text) {
@@ -617,10 +308,7 @@
         return date.toLocaleDateString('en-US', options);
     }
 
-    function updatePagination(data) {
-        // Pagination update logic would go here
-        // For now, this is a placeholder
-    }
+
 
     // Initialize when document is ready
     $(document).ready(function() {

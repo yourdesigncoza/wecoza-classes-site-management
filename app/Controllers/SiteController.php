@@ -28,8 +28,8 @@ class SiteController {
         add_action('wp_enqueue_scripts', [$this, 'enqueueAssets']);
         
         // Register AJAX handlers
-        add_action('wp_ajax_wecoza_search_sites', [$this, 'ajaxSearchSites']);
-        add_action('wp_ajax_nopriv_wecoza_search_sites', [$this, 'ajaxSearchSites']);
+        // DISABLED FOR DEBUGGING: add_action('wp_ajax_wecoza_search_sites', [$this, 'ajaxSearchSites']);
+        // DISABLED FOR DEBUGGING: add_action('wp_ajax_nopriv_wecoza_search_sites', [$this, 'ajaxSearchSites']);
         add_action('wp_ajax_wecoza_delete_site', [$this, 'ajaxDeleteSite']);
         add_action('wp_ajax_wecoza_get_site_details', [$this, 'ajaxGetSiteDetails']);
         add_action('wp_ajax_wecoza_save_site', [$this, 'ajaxSaveSite']);
@@ -71,7 +71,7 @@ class SiteController {
                 true
             );
 
-            // Enqueue AJAX pagination script for sites list
+            // Enqueue pagination script for sites list
             wp_enqueue_script(
                 'wecoza-sites-pagination',
                 \WeCozaSiteManagement\asset_url('js/sites-table-pagination.js'),
@@ -141,32 +141,19 @@ class SiteController {
         ];
         
         try {
-            // Get sites and total count
-            $sites = SiteModel::getAll($query_args);
-            $total_sites = SiteModel::getCount($query_args);
+            // DISABLED FOR DEBUGGING - No data loading, empty table only
+            // $sites = SiteModel::getAll($query_args);
+            // $total_sites = SiteModel::getCount($query_args);
+            // $unique_clients = SiteModel::getUniqueClientCount($query_args);
 
-            // Get unique client count from entire filtered dataset
-            $unique_clients = SiteModel::getUniqueClientCount($query_args);
-
-            // Calculate pagination
-            $total_pages = ceil($total_sites / $query_args['per_page']);
-            
-            // Get clients for display
+            // Return empty data for debugging
+            $sites = [];
+            $total_sites = 0;
+            $unique_clients = 0;
+            $total_pages = 0;
             $clients = [];
-            if (!empty($sites)) {
-                $client_ids = array_unique(array_map(function($site) {
-                    return $site->getClientId();
-                }, $sites));
-                
-                foreach ($client_ids as $client_id) {
-                    $client = ClientModel::find($client_id);
-                    if ($client) {
-                        $clients[$client_id] = $client;
-                    }
-                }
-            }
-            
-            // Prepare view data
+
+            // Prepare view data with empty arrays
             $view_data = [
                 'sites' => $sites,
                 'clients' => $clients,
@@ -181,7 +168,7 @@ class SiteController {
                 'can_edit' => current_user_can('edit_posts'),
                 'can_delete' => current_user_can('delete_posts'),
             ];
-            
+
             // Render the view
             return \WeCozaSiteManagement\view('sites/list', $view_data);
             
@@ -408,70 +395,11 @@ class SiteController {
     }
 
     /**
-     * AJAX handler for searching sites
+     * AJAX handler for searching sites - DISABLED FOR DEBUGGING
      */
     public function ajaxSearchSites() {
-        // Verify nonce
-        if (!wp_verify_nonce($_POST['nonce'], 'wecoza_site_management_nonce')) {
-            wp_die(__('Security check failed.', 'wecoza-site-management'));
-        }
-
-        // Check capabilities
-        if (!current_user_can('read')) {
-            wp_die(__('Permission denied.', 'wecoza-site-management'));
-        }
-
-        try {
-            $search = isset($_POST['search']) ? sanitize_text_field($_POST['search']) : '';
-            $page = isset($_POST['page']) ? max(1, intval($_POST['page'])) : 1;
-            $per_page = isset($_POST['per_page']) ? max(1, intval($_POST['per_page'])) : 20;
-            $client_id = isset($_POST['client_id']) ? intval($_POST['client_id']) : null;
-
-            $query_args = [
-                'search' => $search,
-                'page' => $page,
-                'per_page' => $per_page,
-                'client_id' => $client_id,
-            ];
-
-            $sites = SiteModel::getAll($query_args);
-            $total_sites = SiteModel::getCount($query_args);
-            $unique_clients = SiteModel::getUniqueClientCount($query_args);
-
-            // Get clients for display
-            $clients = [];
-            if (!empty($sites)) {
-                $client_ids = array_unique(array_map(function($site) {
-                    return $site->getClientId();
-                }, $sites));
-
-                foreach ($client_ids as $client_id) {
-                    $client = ClientModel::find($client_id);
-                    if ($client) {
-                        $clients[$client_id] = $client;
-                    }
-                }
-            }
-
-            $response = [
-                'success' => true,
-                'data' => [
-                    'sites' => array_map(function($site) { return $site->toArray(); }, $sites),
-                    'clients' => array_map(function($client) { return $client->toArray(); }, $clients),
-                    'total' => $total_sites,
-                    'unique_clients' => $unique_clients,
-                    'page' => $page,
-                    'per_page' => $per_page,
-                    'total_pages' => ceil($total_sites / $per_page),
-                ]
-            ];
-
-            wp_send_json($response);
-
-        } catch (\Exception $e) {
-            \WeCozaSiteManagement\plugin_log('AJAX search error: ' . $e->getMessage(), 'error');
-            wp_send_json_error(__('Search failed. Please try again.', 'wecoza-site-management'));
-        }
+        // DISABLED FOR DEBUGGING - Search functionality temporarily disabled
+        wp_send_json_error(__('Search functionality temporarily disabled for debugging.', 'wecoza-site-management'));
     }
 
     /**

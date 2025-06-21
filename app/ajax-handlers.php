@@ -21,110 +21,16 @@ if (!defined('ABSPATH')) {
  * AJAX handler for live search functionality
  */
 function ajax_live_search_sites() {
-    // Verify nonce
-    if (!wp_verify_nonce($_POST['nonce'], 'wecoza_site_management_nonce')) {
-        wp_send_json_error(__('Security check failed.', 'wecoza-site-management'));
-    }
-    
-    // Check capabilities
-    if (!current_user_can('read')) {
-        wp_send_json_error(__('Permission denied.', 'wecoza-site-management'));
-    }
-    
-    try {
-        $search = isset($_POST['search']) ? sanitize_text_field($_POST['search']) : '';
-        $page = isset($_POST['page']) ? max(1, intval($_POST['page'])) : 1;
-        $per_page = isset($_POST['per_page']) ? max(1, min(100, intval($_POST['per_page']))) : 20;
-        $client_id = isset($_POST['client_id']) ? intval($_POST['client_id']) : null;
-        
-        $query_args = [
-            'search' => $search,
-            'page' => $page,
-            'per_page' => $per_page,
-            'client_id' => $client_id,
-        ];
-        
-        $sites = SiteModel::getAll($query_args);
-        $total_sites = SiteModel::getCount($query_args);
-        
-        // Get clients for display
-        $clients = [];
-        if (!empty($sites)) {
-            $client_ids = array_unique(array_map(function($site) {
-                return $site->getClientId();
-            }, $sites));
-            
-            foreach ($client_ids as $client_id) {
-                $client = ClientModel::find($client_id);
-                if ($client) {
-                    $clients[$client_id] = $client->toArray();
-                }
-            }
-        }
-        
-        // Prepare response data
-        $sites_data = array_map(function($site) {
-            return $site->toArray();
-        }, $sites);
-        
-        $response = [
-            'sites' => $sites_data,
-            'clients' => $clients,
-            'total' => $total_sites,
-            'page' => $page,
-            'per_page' => $per_page,
-            'total_pages' => ceil($total_sites / $per_page),
-            'search' => $search,
-        ];
-        
-        wp_send_json_success($response);
-        
-    } catch (\Exception $e) {
-        plugin_log('AJAX live search error: ' . $e->getMessage(), 'error');
-        wp_send_json_error(__('Search failed. Please try again.', 'wecoza-site-management'));
-    }
+    // DISABLED FOR DEBUGGING - Search functionality temporarily disabled
+    wp_send_json_error(__('Search functionality temporarily disabled for debugging.', 'wecoza-site-management'));
 }
 
 /**
  * AJAX handler for getting client sites
  */
 function ajax_get_client_sites() {
-    // Verify nonce
-    if (!wp_verify_nonce($_POST['nonce'], 'wecoza_site_management_nonce')) {
-        wp_send_json_error(__('Security check failed.', 'wecoza-site-management'));
-    }
-    
-    // Check capabilities
-    if (!current_user_can('read')) {
-        wp_send_json_error(__('Permission denied.', 'wecoza-site-management'));
-    }
-    
-    try {
-        $client_id = isset($_POST['client_id']) ? intval($_POST['client_id']) : 0;
-        
-        if (!$client_id) {
-            wp_send_json_error(__('Invalid client ID.', 'wecoza-site-management'));
-        }
-        
-        $sites = SiteModel::getByClientId($client_id);
-        $client = ClientModel::find($client_id);
-        
-        $sites_data = array_map(function($site) {
-            return $site->toArray();
-        }, $sites);
-        
-        $response = [
-            'client' => $client ? $client->toArray() : null,
-            'sites' => $sites_data,
-            'count' => count($sites_data),
-        ];
-        
-        wp_send_json_success($response);
-        
-    } catch (\Exception $e) {
-        plugin_log('AJAX get client sites error: ' . $e->getMessage(), 'error');
-        wp_send_json_error(__('Failed to load client sites.', 'wecoza-site-management'));
-    }
+    // DISABLED FOR DEBUGGING - Client sites loading temporarily disabled
+    wp_send_json_error(__('Client sites loading temporarily disabled for debugging.', 'wecoza-site-management'));
 }
 
 /**
@@ -254,41 +160,8 @@ function ajax_validate_site() {
  * AJAX handler for getting site statistics
  */
 function ajax_get_site_statistics() {
-    // Verify nonce
-    if (!wp_verify_nonce($_POST['nonce'], 'wecoza_site_management_nonce')) {
-        wp_send_json_error(__('Security check failed.', 'wecoza-site-management'));
-    }
-    
-    // Check capabilities
-    if (!current_user_can('read')) {
-        wp_send_json_error(__('Permission denied.', 'wecoza-site-management'));
-    }
-    
-    try {
-        // Get overall statistics
-        $total_sites = SiteModel::getCount();
-        $total_clients = count(ClientModel::getAll());
-        
-        // Get recent sites
-        $recent_sites = SiteModel::getAll(['per_page' => 5, 'order_by' => 'created_at', 'order' => 'DESC']);
-        
-        $recent_sites_data = array_map(function($site) {
-            return $site->toArray();
-        }, $recent_sites);
-        
-        $response = [
-            'total_sites' => $total_sites,
-            'total_clients' => $total_clients,
-            'recent_sites' => $recent_sites_data,
-            'generated_at' => current_time('mysql'),
-        ];
-        
-        wp_send_json_success($response);
-        
-    } catch (\Exception $e) {
-        plugin_log('AJAX statistics error: ' . $e->getMessage(), 'error');
-        wp_send_json_error(__('Failed to load statistics.', 'wecoza-site-management'));
-    }
+    // DISABLED FOR DEBUGGING - Statistics loading temporarily disabled
+    wp_send_json_error(__('Statistics loading temporarily disabled for debugging.', 'wecoza-site-management'));
 }
 
 // Register AJAX handlers

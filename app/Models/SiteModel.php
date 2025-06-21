@@ -494,4 +494,297 @@ class SiteModel {
             'updated_at' => $this->updated_at,
         ];
     }
+
+    /**
+     * Get all sites with client data in a single optimized query for debugging
+     * Eliminates N+1 query problem by using LEFT JOIN
+     *
+     * @param int $limit Maximum number of sites to retrieve (default: 1000)
+     * @return array Contains sites_with_clients, statistics, and performance metrics
+     */
+    public static function getAllSitesWithClientsForDebug($limit = 1000) {
+        try {
+            $db = DatabaseService::getInstance();
+            $start_time = microtime(true);
+
+            // Single optimized query with LEFT JOIN and aggregate statistics
+            $sql = "
+                WITH site_data AS (
+                    SELECT
+                        s.site_id,
+                        s.client_id,
+                        s.site_name,
+                        s.address,
+                        s.created_at,
+                        s.updated_at,
+                        c.client_name
+                    FROM sites s
+                    LEFT JOIN clients c ON s.client_id = c.client_id
+                    ORDER BY s.site_name ASC
+                    LIMIT ?
+                ),
+                stats AS (
+                    SELECT
+                        COUNT(*) as total_sites,
+                        COUNT(DISTINCT client_id) as unique_clients
+                    FROM sites
+                )
+                SELECT
+                    sd.*,
+                    st.total_sites,
+                    st.unique_clients
+                FROM site_data sd
+                CROSS JOIN stats st
+            ";
+
+            $results = $db->fetchAll($sql, [$limit]);
+            $end_time = microtime(true);
+            $load_time_ms = round(($end_time - $start_time) * 1000, 2);
+
+            // Process results
+            $sites_with_clients = [];
+            $total_sites = 0;
+            $unique_clients = 0;
+
+            foreach ($results as $row) {
+                // Extract statistics from first row
+                if (empty($sites_with_clients)) {
+                    $total_sites = intval($row['total_sites']);
+                    $unique_clients = intval($row['unique_clients']);
+                }
+
+                // Build site data with embedded client info
+                $site_data = [
+                    'site_id' => intval($row['site_id']),
+                    'client_id' => intval($row['client_id']),
+                    'site_name' => $row['site_name'],
+                    'address' => $row['address'],
+                    'created_at' => $row['created_at'],
+                    'updated_at' => $row['updated_at'],
+                    'client_name' => $row['client_name'] // Embedded client data
+                ];
+
+                $sites_with_clients[] = $site_data;
+            }
+
+            return [
+                'sites_with_clients' => $sites_with_clients,
+                'statistics' => [
+                    'total_sites' => $total_sites,
+                    'unique_clients' => $unique_clients,
+                    'sites_loaded' => count($sites_with_clients),
+                    'load_time_ms' => $load_time_ms,
+                    'query_count' => 1 // Single query instead of N+1
+                ],
+                'performance' => [
+                    'start_time' => $start_time,
+                    'end_time' => $end_time,
+                    'load_time_ms' => $load_time_ms,
+                    'memory_usage' => memory_get_usage(true),
+                    'peak_memory' => memory_get_peak_usage(true)
+                ]
+            ];
+
+        } catch (\Exception $e) {
+            \WeCozaSiteManagement\plugin_log('Error in getAllSitesWithClientsForDebug: ' . $e->getMessage(), 'error');
+            return [
+                'sites_with_clients' => [],
+                'statistics' => [
+                    'total_sites' => 0,
+                    'unique_clients' => 0,
+                    'sites_loaded' => 0,
+                    'load_time_ms' => 0,
+                    'query_count' => 0
+                ],
+                'performance' => [
+                    'start_time' => 0,
+                    'end_time' => 0,
+                    'load_time_ms' => 0,
+                    'memory_usage' => 0,
+                    'peak_memory' => 0
+                ],
+                'error' => $e->getMessage()
+            ];
+        }
+    }
+
+    /**
+     * Get cached sites with clients data for debugging with intelligent cache invalidation
+     * Uses WordPress transients for performance optimization
+     *
+     * @param int $limit Maximum number of sites to retrieve (default: 1000)
+     * @param bool $force_refresh Force cache refresh (default: false)
+     * @return array Contains sites_with_clients, statistics, performance metrics, and cache info
+     */
+    public static function getCachedSitesWithClientsForDebug($limit = 1000, $force_refresh = false) {
+        $cache_key = 'wecoza_sites_debug_cache_v1';
+        $cache_count_key = 'wecoza_sites_debug_count_v1';
+        $cache_expiration = DAY_IN_SECONDS; // 24 hours
+        $start_time = microtime(true);
+
+        try {
+            $cache_status = [
+                'cache_hit' => false,
+                'cache_miss_reason' => '',
+                'cache_created_at' => null,
+                'cache_expires_at' => null,
+                'cache_invalidation_reason' => null,
+                'count_check_time_ms' => 0,
+                'cache_load_time_ms' => 0
+            ];
+
+            // Step 1: Perform lightweight COUNT query to check for data changes
+            $count_start = microtime(true);
+            $db = DatabaseService::getInstance();
+            $current_count_result = $db->fetchRow("SELECT COUNT(*) as count FROM sites");
+            $current_count = intval($current_count_result['count']);
+            $count_end = microtime(true);
+            $cache_status['count_check_time_ms'] = round(($count_end - $count_start) * 1000, 2);
+
+            // Step 2: Check if we should use cache or refresh
+            $should_refresh = $force_refresh;
+            $cached_data = null;
+            $cached_count = null;
+
+            if (!$should_refresh) {
+                // Get cached data and count
+                $cached_data = get_transient($cache_key);
+                $cached_count = get_transient($cache_count_key);
+
+                if ($cached_data === false) {
+                    $should_refresh = true;
+                    $cache_status['cache_miss_reason'] = 'Cache expired or not found';
+                } elseif ($cached_count === false || $cached_count !== $current_count) {
+                    $should_refresh = true;
+                    $cache_status['cache_invalidation_reason'] = sprintf(
+                        'Count changed: cached=%s, current=%s',
+                        $cached_count === false ? 'missing' : $cached_count,
+                        $current_count
+                    );
+                } elseif (!is_array($cached_data) || !isset($cached_data['sites_with_clients'])) {
+                    $should_refresh = true;
+                    $cache_status['cache_invalidation_reason'] = 'Cache data corrupted or invalid structure';
+                }
+            } else {
+                $cache_status['cache_miss_reason'] = 'Force refresh requested';
+            }
+
+            // Step 3: Load data from cache or database
+            if ($should_refresh) {
+                // Cache miss - load from database
+                $fresh_data = self::getAllSitesWithClientsForDebug($limit);
+
+                if (!isset($fresh_data['error'])) {
+                    // Store in cache with metadata
+                    $cache_data = $fresh_data;
+                    $cache_data['cache_metadata'] = [
+                        'created_at' => current_time('mysql'),
+                        'created_timestamp' => time(),
+                        'expires_at' => date('Y-m-d H:i:s', time() + $cache_expiration),
+                        'site_count_at_creation' => $current_count,
+                        'cache_version' => 'v1'
+                    ];
+
+                    // Set transients
+                    set_transient($cache_key, $cache_data, $cache_expiration);
+                    set_transient($cache_count_key, $current_count, $cache_expiration);
+
+                    $cache_status['cache_created_at'] = $cache_data['cache_metadata']['created_at'];
+                    $cache_status['cache_expires_at'] = $cache_data['cache_metadata']['expires_at'];
+
+                    \WeCozaSiteManagement\plugin_log('Debug cache refreshed: ' . count($fresh_data['sites_with_clients']) . ' sites cached');
+                }
+
+                $result_data = $fresh_data;
+            } else {
+                // Cache hit - load from cache
+                $cache_load_start = microtime(true);
+                $result_data = $cached_data;
+                $cache_load_end = microtime(true);
+
+                $cache_status['cache_hit'] = true;
+                $cache_status['cache_load_time_ms'] = round(($cache_load_end - $cache_load_start) * 1000, 2);
+
+                if (isset($cached_data['cache_metadata'])) {
+                    $cache_status['cache_created_at'] = $cached_data['cache_metadata']['created_at'];
+                    $cache_status['cache_expires_at'] = $cached_data['cache_metadata']['expires_at'];
+                }
+            }
+
+            // Step 4: Add cache information to result
+            $end_time = microtime(true);
+            $total_time_ms = round(($end_time - $start_time) * 1000, 2);
+
+            // Update performance metrics
+            if (isset($result_data['performance'])) {
+                $result_data['performance']['total_time_with_cache_ms'] = $total_time_ms;
+            }
+
+            // Add cache status
+            $result_data['cache_info'] = $cache_status;
+            $result_data['cache_info']['total_operation_time_ms'] = $total_time_ms;
+
+            return $result_data;
+
+        } catch (\Exception $e) {
+            \WeCozaSiteManagement\plugin_log('Error in getCachedSitesWithClientsForDebug: ' . $e->getMessage(), 'error');
+
+            // Fallback to direct database query
+            $fallback_data = self::getAllSitesWithClientsForDebug($limit);
+            $fallback_data['cache_info'] = [
+                'cache_hit' => false,
+                'cache_miss_reason' => 'Cache system error: ' . $e->getMessage(),
+                'fallback_used' => true,
+                'error' => $e->getMessage()
+            ];
+
+            return $fallback_data;
+        }
+    }
+
+    /**
+     * Clear debug cache manually
+     * Useful for debugging or when data changes outside normal operations
+     *
+     * @return bool Success status
+     */
+    public static function clearDebugCache() {
+        $cache_key = 'wecoza_sites_debug_cache_v1';
+        $cache_count_key = 'wecoza_sites_debug_count_v1';
+
+        $result1 = delete_transient($cache_key);
+        $result2 = delete_transient($cache_count_key);
+
+        \WeCozaSiteManagement\plugin_log('Debug cache manually cleared');
+
+        return $result1 && $result2;
+    }
+
+    /**
+     * Get cache status information
+     *
+     * @return array Cache status details
+     */
+    public static function getDebugCacheStatus() {
+        $cache_key = 'wecoza_sites_debug_cache_v1';
+        $cache_count_key = 'wecoza_sites_debug_count_v1';
+
+        $cached_data = get_transient($cache_key);
+        $cached_count = get_transient($cache_count_key);
+
+        $status = [
+            'cache_exists' => $cached_data !== false,
+            'count_cache_exists' => $cached_count !== false,
+            'cached_count' => $cached_count,
+            'cache_size_bytes' => $cached_data !== false ? strlen(serialize($cached_data)) : 0,
+        ];
+
+        if ($cached_data !== false && isset($cached_data['cache_metadata'])) {
+            $status['created_at'] = $cached_data['cache_metadata']['created_at'];
+            $status['expires_at'] = $cached_data['cache_metadata']['expires_at'];
+            $status['sites_in_cache'] = count($cached_data['sites_with_clients']);
+        }
+
+        return $status;
+    }
 }
