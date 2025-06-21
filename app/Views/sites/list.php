@@ -27,282 +27,63 @@ $can_delete = isset($can_delete) ? $can_delete : false;
 ?>
 
 <div class="wecoza-sites-list-container">
-    <!-- DEBUG SECTION: Raw Table Data -->
-    <div class="card shadow-none border mb-3" style="background-color: #f8f9fa;">
-        <div class="card-header bg-warning bg-opacity-10 border-warning">
-            <div class="d-flex justify-content-between align-items-center">
-                <h5 class="mb-0 text-warning">
-                    <i class="bi bi-bug-fill me-2"></i>
-                    Debug: Raw Table Data
-                </h5>
-                <button class="btn btn-sm btn-outline-warning" type="button" data-bs-toggle="collapse" data-bs-target="#debugData" aria-expanded="false" aria-controls="debugData">
-                    <i class="bi bi-chevron-down"></i> Toggle Debug Data
-                </button>
-            </div>
-        </div>
-        <div class="collapse" id="debugData">
-            <div class="card-body">
-                <?php
-                // DEBUG: Load data using CACHED OPTIMIZED QUERY (eliminates N+1 problem + caching)
-                // Check if force refresh is requested via URL parameter
-                $force_refresh = isset($_GET['refresh_cache']) && $_GET['refresh_cache'] === '1';
-                $debug_result = \WeCozaSiteManagement\Models\SiteModel::getCachedSitesWithClientsForDebug(1000, $force_refresh);
+    <?php
+    // Load data using CACHED OPTIMIZED QUERY (eliminates N+1 problem + caching)
+    // Check if force refresh is requested via URL parameter
+    $force_refresh = isset($_GET['refresh_cache']) && $_GET['refresh_cache'] === '1';
+    $debug_result = \WeCozaSiteManagement\Models\SiteModel::getCachedSitesWithClientsForDebug(1000, $force_refresh);
 
-                // Extract data from cached/optimized query result
-                $debug_sites_with_clients = $debug_result['sites_with_clients'];
-                $debug_stats = $debug_result['statistics'];
-                $debug_performance = $debug_result['performance'];
-                $debug_cache_info = $debug_result['cache_info'];
-                $debug_error = isset($debug_result['error']) ? $debug_result['error'] : null;
+    // Extract data from cached/optimized query result
+    $debug_sites_with_clients = $debug_result['sites_with_clients'];
 
-                // Separate sites and clients data for display compatibility
-                $debug_sites = [];
-                $debug_clients = [];
+    // POPULATE TABLE DATA: Transform cached data for table display
+    // Override empty $sites and $clients arrays with cached data
+    if (!empty($debug_sites_with_clients) && empty($sites)) {
+        // Load ALL cached data without PHP filtering (JavaScript will handle search/pagination)
+        $sites = [];
+        $clients = [];
 
-                foreach ($debug_sites_with_clients as $site_data) {
-                    // Sites data (without client_name for clean separation)
-                    $debug_sites[] = [
-                        'site_id' => $site_data['site_id'],
-                        'client_id' => $site_data['client_id'],
-                        'site_name' => $site_data['site_name'],
-                        'address' => $site_data['address'],
-                        'created_at' => $site_data['created_at'],
-                        'updated_at' => $site_data['updated_at']
-                    ];
+        foreach ($debug_sites_with_clients as $site_data) {
+            // Create a simple site object with getter methods
+            $site_obj = new class($site_data) {
+                private $data;
 
-                    // Clients data (indexed by client_id)
-                    if (!empty($site_data['client_name'])) {
-                        $debug_clients[$site_data['client_id']] = [
-                            'client_id' => $site_data['client_id'],
-                            'client_name' => $site_data['client_name']
-                        ];
-                    }
+                public function __construct($data) {
+                    $this->data = $data;
                 }
 
-                // POPULATE TABLE DATA: Transform cached data for table display
-                // Override empty $sites and $clients arrays with cached data
-                if (!empty($debug_sites_with_clients) && empty($sites)) {
-                    // Load ALL cached data without PHP filtering (JavaScript will handle search/pagination)
-                    $sites = [];
-                    $clients = [];
+                public function getSiteId() { return $this->data['site_id']; }
+                public function getClientId() { return $this->data['client_id']; }
+                public function getSiteName() { return $this->data['site_name']; }
+                public function getAddress() { return $this->data['address']; }
+                public function getCreatedAt() { return $this->data['created_at']; }
+                public function getUpdatedAt() { return $this->data['updated_at']; }
+            };
 
-                    foreach ($debug_sites_with_clients as $site_data) {
-                        // Create a simple site object with getter methods
-                        $site_obj = new class($site_data) {
-                            private $data;
+            $sites[] = $site_obj;
 
-                            public function __construct($data) {
-                                $this->data = $data;
-                            }
+            // Build clients array for lookup
+            if (!empty($site_data['client_name'])) {
+                $client_obj = new class($site_data) {
+                    private $data;
 
-                            public function getSiteId() { return $this->data['site_id']; }
-                            public function getClientId() { return $this->data['client_id']; }
-                            public function getSiteName() { return $this->data['site_name']; }
-                            public function getAddress() { return $this->data['address']; }
-                            public function getCreatedAt() { return $this->data['created_at']; }
-                            public function getUpdatedAt() { return $this->data['updated_at']; }
-                        };
-
-                        $sites[] = $site_obj;
-
-                        // Build clients array for lookup
-                        if (!empty($site_data['client_name'])) {
-                            $client_obj = new class($site_data) {
-                                private $data;
-
-                                public function __construct($data) {
-                                    $this->data = $data;
-                                }
-
-                                public function getClientId() { return $this->data['client_id']; }
-                                public function getClientName() { return $this->data['client_name']; }
-                            };
-
-                            $clients[$site_data['client_id']] = $client_obj;
-                        }
+                    public function __construct($data) {
+                        $this->data = $data;
                     }
 
-                    // Update statistics (all data loaded, no filtering)
-                    $total_sites = count($debug_sites_with_clients);
-                    $unique_clients = count($clients);
-                }
-                ?>
+                    public function getClientId() { return $this->data['client_id']; }
+                    public function getClientName() { return $this->data['client_name']; }
+                };
 
-                <div class="alert alert-<?php echo isset($debug_error) ? 'danger' : ($debug_cache_info['cache_hit'] ? 'info' : 'success'); ?> mb-4">
-                    <strong>
-                        <i class="bi bi-<?php echo $debug_cache_info['cache_hit'] ? 'lightning-charge-fill' : 'database'; ?> me-1"></i>
-                        <?php echo $debug_cache_info['cache_hit'] ? 'CACHED' : 'FRESH'; ?> Data Performance:
-                    </strong>
-                    <?php if (isset($debug_error)): ?>
-                        ERROR: <?php echo $debug_error; ?>
-                    <?php else: ?>
-                        <strong><?php echo isset($debug_cache_info['total_operation_time_ms']) ? $debug_cache_info['total_operation_time_ms'] : $debug_stats['load_time_ms']; ?> ms</strong>
+                $clients[$site_data['client_id']] = $client_obj;
+            }
+        }
 
-                        <?php if ($debug_cache_info['cache_hit']): ?>
-                            | <strong><i class="bi bi-check-circle-fill text-success"></i> CACHE HIT</strong>
-                            | <strong>Cache Load:</strong> <?php echo $debug_cache_info['cache_load_time_ms']; ?> ms
-                            | <strong>Count Check:</strong> <?php echo $debug_cache_info['count_check_time_ms']; ?> ms
-                            <?php if ($debug_cache_info['cache_created_at']): ?>
-                            | <strong>Cached:</strong> <?php echo date('H:i:s', strtotime($debug_cache_info['cache_created_at'])); ?>
-                            <?php endif; ?>
-                        <?php else: ?>
-                            | <strong><i class="bi bi-arrow-clockwise text-warning"></i> CACHE MISS</strong>
-                            | <strong>Reason:</strong> <?php echo $debug_cache_info['cache_miss_reason'] ?: $debug_cache_info['cache_invalidation_reason']; ?>
-                            | <strong>DB Query:</strong> <?php echo $debug_stats['load_time_ms']; ?> ms
-                            | <strong>Query Count:</strong> <?php echo $debug_stats['query_count']; ?>
-                        <?php endif; ?>
-
-                        | <strong>Sites:</strong> <?php echo $debug_stats['sites_loaded']; ?>
-                        | <strong>Clients:</strong> <?php echo count($debug_clients); ?>
-                        | <strong>Total in DB:</strong> <?php echo $debug_stats['total_sites']; ?>
-
-                        <?php if (!$debug_cache_info['cache_hit']): ?>
-                        | <strong>Memory:</strong> <?php echo round($debug_performance['memory_usage'] / 1024 / 1024, 2); ?> MB
-                        <?php endif; ?>
-                    <?php endif; ?>
-
-                    <?php if (!isset($debug_error)): ?>
-                    <div class="mt-2">
-                        <small class="text-muted">
-                            <a href="?refresh_cache=1" class="btn btn-outline-secondary btn-sm me-2">
-                                <i class="bi bi-arrow-clockwise"></i> Force Cache Refresh
-                            </a>
-                            <?php if ($debug_cache_info['cache_expires_at']): ?>
-                            Cache expires: <?php echo date('Y-m-d H:i:s', strtotime($debug_cache_info['cache_expires_at'])); ?>
-                            <?php endif; ?>
-                        </small>
-                    </div>
-                    <?php endif; ?>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6">
-                        <h6 class="text-primary mb-3">
-                            <i class="bi bi-database me-1"></i>
-                            ACTUAL Sites Data (<?php echo isset($debug_sites) ? count($debug_sites) : 0; ?> items loaded)
-                        </h6>
-                        <pre class="bg-light p-3 rounded" style="max-height: 400px; overflow-y: auto; font-size: 0.75rem;"><?php
-                            if (isset($debug_sites)) {
-                                $sites_debug = array_map(function($site) {
-                                    return is_object($site) ? $site->toArray() : $site;
-                                }, $debug_sites);
-                                echo json_encode($sites_debug, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-                            } else {
-                                echo "No sites data available";
-                            }
-                        ?></pre>
-
-                        <h6 class="text-success mb-3 mt-4">
-                            <i class="bi bi-people me-1"></i>
-                            ACTUAL Clients Data (<?php echo isset($debug_clients) ? count($debug_clients) : 0; ?> items loaded)
-                        </h6>
-                        <pre class="bg-light p-3 rounded" style="max-height: 400px; overflow-y: auto; font-size: 0.75rem;"><?php
-                            if (isset($debug_clients)) {
-                                $clients_debug = [];
-                                foreach ($debug_clients as $client_id => $client) {
-                                    $clients_debug[$client_id] = is_object($client) ? $client->toArray() : $client;
-                                }
-                                echo json_encode($clients_debug, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-                            } else {
-                                echo "No clients data available";
-                            }
-                        ?></pre>
-                    </div>
-
-                    <div class="col-md-6">
-                        <h6 class="text-info mb-3">
-                            <i class="bi bi-graph-up me-1"></i>
-                            ACTUAL Database Statistics
-                        </h6>
-                        <pre class="bg-light p-3 rounded" style="font-size: 0.8rem;"><?php
-                            $stats = [
-                                'CACHE_PERFORMANCE_STATS' => [
-                                    'cache_hit' => $debug_cache_info['cache_hit'],
-                                    'cache_status' => $debug_cache_info['cache_hit'] ? 'HIT' : 'MISS',
-                                    'total_operation_time_ms' => $debug_cache_info['total_operation_time_ms'],
-                                    'count_check_time_ms' => $debug_cache_info['count_check_time_ms'],
-                                    'cache_load_time_ms' => $debug_cache_info['cache_load_time_ms'],
-                                    'cache_miss_reason' => $debug_cache_info['cache_miss_reason'],
-                                    'cache_invalidation_reason' => $debug_cache_info['cache_invalidation_reason'],
-                                    'cache_created_at' => $debug_cache_info['cache_created_at'],
-                                    'cache_expires_at' => $debug_cache_info['cache_expires_at']
-                                ],
-                                'OPTIMIZED_QUERY_STATS' => [
-                                    'total_sites_in_db' => $debug_stats['total_sites'],
-                                    'unique_clients_in_db' => $debug_stats['unique_clients'],
-                                    'sites_loaded_for_debug' => $debug_stats['sites_loaded'],
-                                    'clients_loaded_for_debug' => count($debug_clients),
-                                    'database_load_time_ms' => $debug_stats['load_time_ms'],
-                                    'query_count' => $debug_stats['query_count'],
-                                    'memory_usage_mb' => round($debug_performance['memory_usage'] / 1024 / 1024, 2),
-                                    'peak_memory_mb' => round($debug_performance['peak_memory'] / 1024 / 1024, 2)
-                                ],
-                                'PERFORMANCE_COMPARISON' => [
-                                    'old_pattern' => 'N+1 queries (3 base + 1 per client)',
-                                    'new_pattern' => $debug_cache_info['cache_hit'] ? 'Cached data (0 database queries)' : '1 single optimized query with LEFT JOIN',
-                                    'estimated_old_queries' => 3 + count($debug_clients),
-                                    'actual_queries_executed' => $debug_cache_info['cache_hit'] ? 1 : ($debug_stats['query_count'] + 1), // +1 for count check
-                                    'query_reduction' => (3 + count($debug_clients)) - ($debug_cache_info['cache_hit'] ? 1 : ($debug_stats['query_count'] + 1)),
-                                    'performance_improvement' => $debug_cache_info['cache_hit'] ? 'Cache hit - near instant' : 'Single optimized query'
-                                ],
-                                'CACHE_EFFICIENCY' => [
-                                    'cache_enabled' => true,
-                                    'cache_expiration_hours' => 24,
-                                    'force_refresh_requested' => $force_refresh,
-                                    'fallback_used' => isset($debug_cache_info['fallback_used']) ? $debug_cache_info['fallback_used'] : false,
-                                    'cache_invalidation_method' => 'COUNT query comparison',
-                                    'estimated_cache_size_kb' => $debug_cache_info['cache_hit'] ? round(strlen(serialize($debug_result)) / 1024, 2) : 'N/A'
-                                ],
-                                'DISABLED_CONTROLLER_STATS' => [
-                                    'controller_total_sites' => $total_sites,
-                                    'controller_unique_clients' => $unique_clients,
-                                    'controller_sites_count' => count($sites),
-                                    'controller_clients_count' => count($clients)
-                                ],
-                                'PAGINATION_INFO' => [
-                                    'current_page' => $current_page,
-                                    'total_pages' => $total_pages,
-                                    'per_page' => $per_page
-                                ]
-                            ];
-                            echo json_encode($stats, JSON_PRETTY_PRINT);
-                        ?></pre>
-
-                        <h6 class="text-secondary mb-3 mt-4">
-                            <i class="bi bi-gear me-1"></i>
-                            Query Parameters & Settings
-                        </h6>
-                        <pre class="bg-light p-3 rounded" style="font-size: 0.8rem;"><?php
-                            $query_info = [
-                                'search' => $search,
-                                'current_page' => $current_page,
-                                'per_page' => $per_page,
-                                'show_search' => $show_search,
-                                'show_pagination' => $show_pagination,
-                                'can_edit' => $can_edit,
-                                'can_delete' => $can_delete,
-                                'request_method' => $_SERVER['REQUEST_METHOD'],
-                                'get_params' => $_GET,
-                                'timestamp' => current_time('mysql')
-                            ];
-                            echo json_encode($query_info, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-                        ?></pre>
-
-                        <h6 class="text-info mb-3 mt-4">
-                            <i class="bi bi-info-circle me-1"></i>
-                            System Status
-                        </h6>
-                        <div class="alert alert-info mb-0">
-                            <strong>Cache System:</strong> ACTIVE (WordPress Transients)<br>
-                            <strong>Data Loading:</strong> OPTIMIZED (Single Query + Caching)<br>
-                            <strong>Performance:</strong> ENHANCED (N+1 Query Problem Eliminated)<br>
-                            <strong>Last Updated:</strong> <?php echo current_time('Y-m-d H:i:s'); ?>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+        // Update statistics (all data loaded, no filtering)
+        $total_sites = count($debug_sites_with_clients);
+        $unique_clients = count($clients);
+    }
+    ?>
 
     <!-- Sites Content -->
     <div id="sites-content">

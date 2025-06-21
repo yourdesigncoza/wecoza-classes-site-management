@@ -22,7 +22,7 @@
         tableSelector: '#sites-table',
         tableRowSelector: 'tbody tr',
         paginationContainerSelector: '#sites-pagination-container',
-        itemsPerPage: 5            // Number of sites to display per page
+        itemsPerPage: 20           // Number of sites to display per page
     };
 
     /**
