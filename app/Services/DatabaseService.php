@@ -91,7 +91,7 @@ class DatabaseService {
                 $options
             );
             
-            \WeCozaSiteManagement\plugin_log('PostgreSQL connection established successfully');
+            // \WeCozaSiteManagement\plugin_log('PostgreSQL connection established successfully');
             
         } catch (\PDOException $e) {
             \WeCozaSiteManagement\plugin_log('Database connection failed: ' . $e->getMessage(), 'error');

@@ -177,9 +177,13 @@ class SiteModel {
             if ($result) {
                 $this->site_id = intval($result['site_id']);
                 \WeCozaSiteManagement\plugin_log("Site created successfully with ID: {$this->site_id}");
+
+                // Clear cache after successful creation
+                \WeCoza_Site_Management_Plugin::clear_sites_cache();
+
                 return $this->site_id;
             }
-            
+
             return false;
         } catch (\Exception $e) {
             \WeCozaSiteManagement\plugin_log('Error creating site: ' . $e->getMessage(), 'error');
@@ -211,8 +215,11 @@ class SiteModel {
             $success = $db->rowCount($stmt) > 0;
             if ($success) {
                 \WeCozaSiteManagement\plugin_log("Site updated successfully: {$this->site_id}");
+
+                // Clear cache after successful update
+                \WeCoza_Site_Management_Plugin::clear_sites_cache();
             }
-            
+
             return $success;
         } catch (\Exception $e) {
             \WeCozaSiteManagement\plugin_log('Error updating site: ' . $e->getMessage(), 'error');
@@ -238,8 +245,11 @@ class SiteModel {
             $success = $db->rowCount($stmt) > 0;
             if ($success) {
                 \WeCozaSiteManagement\plugin_log("Site deleted successfully: {$this->site_id}");
+
+                // Clear cache after successful deletion
+                \WeCoza_Site_Management_Plugin::clear_sites_cache();
             }
-            
+
             return $success;
         } catch (\Exception $e) {
             \WeCozaSiteManagement\plugin_log('Error deleting site: ' . $e->getMessage(), 'error');
@@ -618,7 +628,6 @@ class SiteModel {
      */
     public static function getCachedSitesWithClientsForDebug($limit = 1000, $force_refresh = false) {
         $cache_key = 'wecoza_sites_debug_cache_v1';
-        $cache_count_key = 'wecoza_sites_debug_count_v1';
         $cache_expiration = DAY_IN_SECONDS; // 24 hours
         $start_time = microtime(true);
 
@@ -628,48 +637,29 @@ class SiteModel {
                 'cache_miss_reason' => '',
                 'cache_created_at' => null,
                 'cache_expires_at' => null,
-                'cache_invalidation_reason' => null,
-                'count_check_time_ms' => 0,
                 'cache_load_time_ms' => 0
             ];
 
-            // Step 1: Perform lightweight COUNT query to check for data changes
-            $count_start = microtime(true);
-            $db = DatabaseService::getInstance();
-            $current_count_result = $db->fetchRow("SELECT COUNT(*) as count FROM sites");
-            $current_count = intval($current_count_result['count']);
-            $count_end = microtime(true);
-            $cache_status['count_check_time_ms'] = round(($count_end - $count_start) * 1000, 2);
-
-            // Step 2: Check if we should use cache or refresh
+            // Step 1: Check if we should use cache or refresh (simplified approach)
             $should_refresh = $force_refresh;
             $cached_data = null;
-            $cached_count = null;
 
             if (!$should_refresh) {
-                // Get cached data and count
+                // Get cached data
                 $cached_data = get_transient($cache_key);
-                $cached_count = get_transient($cache_count_key);
 
                 if ($cached_data === false) {
                     $should_refresh = true;
                     $cache_status['cache_miss_reason'] = 'Cache expired or not found';
-                } elseif ($cached_count === false || $cached_count !== $current_count) {
-                    $should_refresh = true;
-                    $cache_status['cache_invalidation_reason'] = sprintf(
-                        'Count changed: cached=%s, current=%s',
-                        $cached_count === false ? 'missing' : $cached_count,
-                        $current_count
-                    );
                 } elseif (!is_array($cached_data) || !isset($cached_data['sites_with_clients'])) {
                     $should_refresh = true;
-                    $cache_status['cache_invalidation_reason'] = 'Cache data corrupted or invalid structure';
+                    $cache_status['cache_miss_reason'] = 'Cache data corrupted or invalid structure';
                 }
             } else {
                 $cache_status['cache_miss_reason'] = 'Force refresh requested';
             }
 
-            // Step 3: Load data from cache or database
+            // Step 2: Load data from cache or database
             if ($should_refresh) {
                 // Cache miss - load from database
                 $fresh_data = self::getAllSitesWithClientsForDebug($limit);
@@ -681,18 +671,16 @@ class SiteModel {
                         'created_at' => current_time('mysql'),
                         'created_timestamp' => time(),
                         'expires_at' => date('Y-m-d H:i:s', time() + $cache_expiration),
-                        'site_count_at_creation' => $current_count,
                         'cache_version' => 'v1'
                     ];
 
-                    // Set transients
+                    // Set transient
                     set_transient($cache_key, $cache_data, $cache_expiration);
-                    set_transient($cache_count_key, $current_count, $cache_expiration);
 
                     $cache_status['cache_created_at'] = $cache_data['cache_metadata']['created_at'];
                     $cache_status['cache_expires_at'] = $cache_data['cache_metadata']['expires_at'];
 
-                    \WeCozaSiteManagement\plugin_log('Debug cache refreshed: ' . count($fresh_data['sites_with_clients']) . ' sites cached');
+                    // \WeCozaSiteManagement\plugin_log('Debug cache refreshed: ' . count($fresh_data['sites_with_clients']) . ' sites cached');
                 }
 
                 $result_data = $fresh_data;
@@ -750,14 +738,12 @@ class SiteModel {
      */
     public static function clearDebugCache() {
         $cache_key = 'wecoza_sites_debug_cache_v1';
-        $cache_count_key = 'wecoza_sites_debug_count_v1';
 
-        $result1 = delete_transient($cache_key);
-        $result2 = delete_transient($cache_count_key);
+        $result = delete_transient($cache_key);
 
         \WeCozaSiteManagement\plugin_log('Debug cache manually cleared');
 
-        return $result1 && $result2;
+        return $result;
     }
 
     /**
@@ -767,15 +753,11 @@ class SiteModel {
      */
     public static function getDebugCacheStatus() {
         $cache_key = 'wecoza_sites_debug_cache_v1';
-        $cache_count_key = 'wecoza_sites_debug_count_v1';
 
         $cached_data = get_transient($cache_key);
-        $cached_count = get_transient($cache_count_key);
 
         $status = [
             'cache_exists' => $cached_data !== false,
-            'count_cache_exists' => $cached_count !== false,
-            'cached_count' => $cached_count,
             'cache_size_bytes' => $cached_data !== false ? strlen(serialize($cached_data)) : 0,
         ];
 

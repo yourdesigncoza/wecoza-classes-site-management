@@ -91,7 +91,12 @@ function ajax_bulk_site_operations() {
             $success_count,
             $error_count
         );
-        
+
+        // Clear cache after bulk operations if any sites were successfully processed
+        if ($success_count > 0) {
+            \WeCoza_Site_Management_Plugin::clear_sites_cache();
+        }
+
         wp_send_json_success([
             'message' => $message,
             'success_count' => $success_count,

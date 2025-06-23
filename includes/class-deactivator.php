@@ -71,6 +71,7 @@ class WeCoza_Site_Management_Deactivator {
             'wecoza_site_management_sites_cache',
             'wecoza_site_management_clients_cache',
             'wecoza_site_management_stats_cache',
+            'wecoza_sites_debug_cache_v1', // Current cache key
         );
 
         foreach ($transients as $transient) {

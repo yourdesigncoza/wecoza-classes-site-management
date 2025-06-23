@@ -39,7 +39,7 @@ class WeCoza_Site_Management_Plugin {
         $this->plugin_name = 'wecoza-site-management';
         
         $this->load_dependencies();
-        $this->define_admin_hooks();
+        // $this->define_admin_hooks();
         $this->define_public_hooks();
     }
 
@@ -54,10 +54,10 @@ class WeCoza_Site_Management_Plugin {
     /**
      * Define admin hooks
      */
-    private function define_admin_hooks() {
-        // Admin-specific hooks can be added here if needed in the future
-        add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_assets'));
-    }
+    // private function define_admin_hooks() {
+    //     // Admin-specific hooks can be added here if needed in the future
+    //     add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_assets'));
+    // }
 
     /**
      * Define public hooks
@@ -156,5 +156,25 @@ class WeCoza_Site_Management_Plugin {
      */
     public function get_plugin_name() {
         return $this->plugin_name;
+    }
+
+    /**
+     * Clear sites cache transients
+     * Proactive cache invalidation for immediate consistency
+     *
+     * @since 1.0.0
+     * @return bool Success status
+     */
+    public static function clear_sites_cache() {
+        $cache_key = 'wecoza_sites_debug_cache_v1';
+
+        $result = delete_transient($cache_key);
+
+        // Log cache clearing for debugging
+        if (function_exists('WeCozaSiteManagement\\plugin_log')) {
+            \WeCozaSiteManagement\plugin_log('Sites cache cleared proactively: ' . ($result ? 'success' : 'failed'));
+        }
+
+        return $result;
     }
 }

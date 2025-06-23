@@ -431,6 +431,7 @@ class SiteController {
             $success = $site->delete();
 
             if ($success) {
+                // Cache is already cleared in the model's delete() method
                 wp_send_json_success('Site deleted successfully.');
             } else {
                 wp_send_json_error('Failed to delete site.');
@@ -531,6 +532,7 @@ class SiteController {
                     'Site updated successfully!' :
                     'Site created successfully!';
 
+                // Cache is already cleared in the model's create()/update() methods
                 wp_send_json_success([
                     'message' => $message,
                     'site' => $site->toArray()
