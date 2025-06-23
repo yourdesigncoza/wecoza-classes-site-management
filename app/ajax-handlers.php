@@ -22,7 +22,7 @@ if (!defined('ABSPATH')) {
  */
 function ajax_live_search_sites() {
     // DISABLED FOR DEBUGGING - Search functionality temporarily disabled
-    wp_send_json_error(__('Search functionality temporarily disabled for debugging.', 'wecoza-site-management'));
+    wp_send_json_error('Search functionality temporarily disabled for debugging.');
 }
 
 /**
@@ -30,7 +30,7 @@ function ajax_live_search_sites() {
  */
 function ajax_get_client_sites() {
     // DISABLED FOR DEBUGGING - Client sites loading temporarily disabled
-    wp_send_json_error(__('Client sites loading temporarily disabled for debugging.', 'wecoza-site-management'));
+    wp_send_json_error('Client sites loading temporarily disabled for debugging.');
 }
 
 /**
@@ -39,12 +39,12 @@ function ajax_get_client_sites() {
 function ajax_bulk_site_operations() {
     // Verify nonce
     if (!wp_verify_nonce($_POST['nonce'], 'wecoza_site_management_nonce')) {
-        wp_send_json_error(__('Security check failed.', 'wecoza-site-management'));
+        wp_send_json_error('Security check failed.');
     }
     
     // Check capabilities
     if (!current_user_can('edit_posts')) {
-        wp_send_json_error(__('Permission denied.', 'wecoza-site-management'));
+        wp_send_json_error('Permission denied.');
     }
     
     try {
@@ -52,7 +52,7 @@ function ajax_bulk_site_operations() {
         $site_ids = isset($_POST['site_ids']) ? array_map('intval', $_POST['site_ids']) : [];
         
         if (empty($site_ids)) {
-            wp_send_json_error(__('No sites selected.', 'wecoza-site-management'));
+            wp_send_json_error('No sites selected.');
         }
         
         $results = [];
@@ -62,7 +62,7 @@ function ajax_bulk_site_operations() {
         switch ($operation) {
             case 'delete':
                 if (!current_user_can('delete_posts')) {
-                    wp_send_json_error(__('Permission denied for delete operation.', 'wecoza-site-management'));
+                    wp_send_json_error('Permission denied for delete operation.');
                 }
                 
                 foreach ($site_ids as $site_id) {
@@ -83,11 +83,11 @@ function ajax_bulk_site_operations() {
                 break;
                 
             default:
-                wp_send_json_error(__('Invalid operation.', 'wecoza-site-management'));
+                wp_send_json_error('Invalid operation.');
         }
         
         $message = sprintf(
-            __('%d sites processed successfully, %d errors.', 'wecoza-site-management'),
+            '%d sites processed successfully, %d errors.',
             $success_count,
             $error_count
         );
@@ -101,7 +101,7 @@ function ajax_bulk_site_operations() {
         
     } catch (\Exception $e) {
         plugin_log('AJAX bulk operations error: ' . $e->getMessage(), 'error');
-        wp_send_json_error(__('Bulk operation failed. Please try again.', 'wecoza-site-management'));
+        wp_send_json_error('Bulk operation failed. Please try again.');
     }
 }
 
@@ -111,12 +111,12 @@ function ajax_bulk_site_operations() {
 function ajax_validate_site() {
     // Verify nonce
     if (!wp_verify_nonce($_POST['nonce'], 'wecoza_site_management_nonce')) {
-        wp_send_json_error(__('Security check failed.', 'wecoza-site-management'));
+        wp_send_json_error('Security check failed.');
     }
     
     // Check capabilities
     if (!current_user_can('edit_posts')) {
-        wp_send_json_error(__('Permission denied.', 'wecoza-site-management'));
+        wp_send_json_error('Permission denied.');
     }
     
     try {
@@ -137,22 +137,22 @@ function ajax_validate_site() {
         // Check for duplicate site name within client
         if (empty($validation_errors['site_name']) && !empty($form_data['site_name']) && !empty($form_data['client_id'])) {
             if (SiteModel::siteNameExists($form_data['site_name'], $form_data['client_id'], $form_data['site_id'])) {
-                $validation_errors['site_name'] = __('A site with this name already exists for this client.', 'wecoza-site-management');
+                $validation_errors['site_name'] = 'A site with this name already exists for this client.';
             }
         }
         
         if (empty($validation_errors)) {
-            wp_send_json_success(__('Validation passed.', 'wecoza-site-management'));
+            wp_send_json_success('Validation passed.');
         } else {
             wp_send_json_error([
-                'message' => __('Validation failed.', 'wecoza-site-management'),
+                'message' => 'Validation failed.',
                 'errors' => $validation_errors
             ]);
         }
         
     } catch (\Exception $e) {
         plugin_log('AJAX validation error: ' . $e->getMessage(), 'error');
-        wp_send_json_error(__('Validation failed. Please try again.', 'wecoza-site-management'));
+        wp_send_json_error('Validation failed. Please try again.');
     }
 }
 
@@ -161,7 +161,7 @@ function ajax_validate_site() {
  */
 function ajax_get_site_statistics() {
     // DISABLED FOR DEBUGGING - Statistics loading temporarily disabled
-    wp_send_json_error(__('Statistics loading temporarily disabled for debugging.', 'wecoza-site-management'));
+    wp_send_json_error('Statistics loading temporarily disabled for debugging.');
 }
 
 // Register AJAX handlers

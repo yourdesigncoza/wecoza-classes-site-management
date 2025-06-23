@@ -96,28 +96,28 @@ class SiteModel {
         
         // Validate site name
         if (empty($this->site_name)) {
-            $errors['site_name'] = __('Site name is required.', 'wecoza-site-management');
+            $errors['site_name'] = 'Site name is required.';
         } elseif (strlen($this->site_name) < $config['site_name']['min_length']) {
             $errors['site_name'] = sprintf(
-                __('Site name must be at least %d characters.', 'wecoza-site-management'),
+                'Site name must be at least %d characters.',
                 $config['site_name']['min_length']
             );
         } elseif (strlen($this->site_name) > $config['site_name']['max_length']) {
             $errors['site_name'] = sprintf(
-                __('Site name must not exceed %d characters.', 'wecoza-site-management'),
+                'Site name must not exceed %d characters.',
                 $config['site_name']['max_length']
             );
         }
         
         // Validate client ID
         if (empty($this->client_id) || $this->client_id < 1) {
-            $errors['client_id'] = __('Please select a valid client.', 'wecoza-site-management');
+            $errors['client_id'] = 'Please select a valid client.';
         }
         
         // Validate address (optional but has max length)
         if (!empty($this->address) && strlen($this->address) > $config['address']['max_length']) {
             $errors['address'] = sprintf(
-                __('Address must not exceed %d characters.', 'wecoza-site-management'),
+                'Address must not exceed %d characters.',
                 $config['address']['max_length']
             );
         }

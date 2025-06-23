@@ -50,7 +50,7 @@ function build_pagination_url($page, $base_url, $page_param) {
 }
 ?>
 
-<nav aria-label="<?php esc_attr_e('Pagination Navigation', 'wecoza-site-management'); ?>" class="pagination-nav">
+<nav aria-label="Pagination Navigation" class="pagination-nav">
     <ul class="pagination justify-content-center mb-0">
         
         <!-- First Page -->
@@ -58,9 +58,9 @@ function build_pagination_url($page, $base_url, $page_param) {
         <li class="page-item">
             <a class="page-link" 
                href="<?php echo esc_url(build_pagination_url(1, $base_url, $page_param)); ?>"
-               title="<?php esc_attr_e('First page', 'wecoza-site-management'); ?>">
+               title="First page">
                 <i class="fas fa-angle-double-left"></i>
-                <span class="d-none d-sm-inline ms-1"><?php _e('First', 'wecoza-site-management'); ?></span>
+                <span class="d-none d-sm-inline ms-1">First</span>
             </a>
         </li>
         <?php endif; ?>
@@ -70,16 +70,16 @@ function build_pagination_url($page, $base_url, $page_param) {
         <li class="page-item">
             <a class="page-link" 
                href="<?php echo esc_url(build_pagination_url($current_page - 1, $base_url, $page_param)); ?>"
-               title="<?php esc_attr_e('Previous page', 'wecoza-site-management'); ?>">
+               title="Previous page">
                 <i class="fas fa-chevron-left"></i>
-                <span class="d-none d-sm-inline ms-1"><?php _e('Previous', 'wecoza-site-management'); ?></span>
+                <span class="d-none d-sm-inline ms-1">Previous</span>
             </a>
         </li>
         <?php else: ?>
         <li class="page-item disabled">
             <span class="page-link">
                 <i class="fas fa-chevron-left"></i>
-                <span class="d-none d-sm-inline ms-1"><?php _e('Previous', 'wecoza-site-management'); ?></span>
+                <span class="d-none d-sm-inline ms-1">Previous</span>
             </span>
         </li>
         <?php endif; ?>
@@ -90,12 +90,12 @@ function build_pagination_url($page, $base_url, $page_param) {
             <?php if ($i === $current_page): ?>
                 <span class="page-link">
                     <?php echo esc_html($i); ?>
-                    <span class="visually-hidden"><?php _e('(current)', 'wecoza-site-management'); ?></span>
+                    <span class="visually-hidden">(current)</span>
                 </span>
             <?php else: ?>
                 <a class="page-link" 
                    href="<?php echo esc_url(build_pagination_url($i, $base_url, $page_param)); ?>"
-                   title="<?php printf(esc_attr__('Go to page %d', 'wecoza-site-management'), $i); ?>">
+                   title="<?php printf(esc_attr'Go to page %d', $i); ?>">
                     <?php echo esc_html($i); ?>
                 </a>
             <?php endif; ?>
@@ -107,15 +107,15 @@ function build_pagination_url($page, $base_url, $page_param) {
         <li class="page-item">
             <a class="page-link" 
                href="<?php echo esc_url(build_pagination_url($current_page + 1, $base_url, $page_param)); ?>"
-               title="<?php esc_attr_e('Next page', 'wecoza-site-management'); ?>">
-                <span class="d-none d-sm-inline me-1"><?php _e('Next', 'wecoza-site-management'); ?></span>
+               title="Next page">
+                <span class="d-none d-sm-inline me-1">Next</span>
                 <i class="fas fa-chevron-right"></i>
             </a>
         </li>
         <?php else: ?>
         <li class="page-item disabled">
             <span class="page-link">
-                <span class="d-none d-sm-inline me-1"><?php _e('Next', 'wecoza-site-management'); ?></span>
+                <span class="d-none d-sm-inline me-1">Next</span>
                 <i class="fas fa-chevron-right"></i>
             </span>
         </li>
@@ -126,8 +126,8 @@ function build_pagination_url($page, $base_url, $page_param) {
         <li class="page-item">
             <a class="page-link" 
                href="<?php echo esc_url(build_pagination_url($total_pages, $base_url, $page_param)); ?>"
-               title="<?php esc_attr_e('Last page', 'wecoza-site-management'); ?>">
-                <span class="d-none d-sm-inline me-1"><?php _e('Last', 'wecoza-site-management'); ?></span>
+               title="Last page">
+                <span class="d-none d-sm-inline me-1">Last</span>
                 <i class="fas fa-angle-double-right"></i>
             </a>
         </li>
@@ -143,13 +143,13 @@ function build_pagination_url($page, $base_url, $page_param) {
         
         if ($total_items > 0) {
             printf(
-                __('Showing %s to %s of %s items', 'wecoza-site-management'),
+                'Showing %s to %s of %s items',
                 '<strong>' . number_format_i18n($start_item) . '</strong>',
                 '<strong>' . number_format_i18n($end_item) . '</strong>',
                 '<strong>' . number_format_i18n($total_items) . '</strong>'
             );
         } else {
-            _e('No items found', 'wecoza-site-management');
+            _e('No items found';
         }
         ?>
     </div>

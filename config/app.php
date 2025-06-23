@@ -192,10 +192,10 @@ return array(
         'display_errors' => defined('WP_DEBUG') && WP_DEBUG,
         'error_page_redirect' => false,
         'custom_error_messages' => array(
-            'site_not_found' => __('Site not found.', 'wecoza-site-management'),
-            'permission_denied' => __('You do not have permission to perform this action.', 'wecoza-site-management'),
-            'validation_failed' => __('Please check your input and try again.', 'wecoza-site-management'),
-            'database_error' => __('A database error occurred. Please try again later.', 'wecoza-site-management'),
+            'site_not_found' => 'Site not found.',
+            'permission_denied' => 'You do not have permission to perform this action.',
+            'validation_failed' => 'Please check your input and try again.',
+            'database_error' => 'A database error occurred. Please try again later.',
         ),
     ),
 );

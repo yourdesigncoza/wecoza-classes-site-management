@@ -55,13 +55,13 @@ class WeCoza_Site_Management_Activator {
         // Check WordPress version
         if (version_compare(get_bloginfo('version'), '5.0', '<')) {
             deactivate_plugins(WECOZA_SITE_MANAGEMENT_PLUGIN_BASENAME);
-            wp_die(__('WeCoza Site Management requires WordPress 5.0 or higher.', 'wecoza-site-management'));
+            wp_die('WeCoza Site Management requires WordPress 5.0 or higher.');
         }
 
         // Check PHP version
         if (version_compare(PHP_VERSION, '7.4', '<')) {
             deactivate_plugins(WECOZA_SITE_MANAGEMENT_PLUGIN_BASENAME);
-            wp_die(__('WeCoza Site Management requires PHP 7.4 or higher.', 'wecoza-site-management'));
+            wp_die('WeCoza Site Management requires PHP 7.4 or higher.');
         }
     }
 

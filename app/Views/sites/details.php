@@ -20,7 +20,7 @@ $can_edit = isset($can_edit) ? $can_edit : false;
 $can_delete = isset($can_delete) ? $can_delete : false;
 
 if (!$site) {
-    echo '<div class="alert alert-subtle-danger">' . __('Site data not available.', 'wecoza-site-management') . '</div>';
+    echo '<div class="alert alert-subtle-danger">' . 'Site data not available.' . '</div>';
     return;
 }
 ?>
@@ -38,7 +38,7 @@ if (!$site) {
                 <?php if ($client): ?>
                     <p class="text-muted mb-0">
                         <i class="fas fa-user"></i>
-                        <?php printf(__('Client: %s', 'wecoza-site-management'), esc_html($client->getClientName())); ?>
+                        <?php printf('Client: %s', esc_html($client->getClientName())); ?>
                     </p>
                 <?php endif; ?>
             </div>
@@ -47,12 +47,12 @@ if (!$site) {
                 <div class="btn-group">
                     <a href="<?php echo esc_url(remove_query_arg(['action', 'site_id'])); ?>" 
                        class="btn btn-outline-secondary">
-                        <i class="fas fa-arrow-left"></i> <?php _e('Back to List', 'wecoza-site-management'); ?>
+                        <i class="fas fa-arrow-left"></i> Back to List
                     </a>
                     <?php if ($show_edit_link && $can_edit): ?>
                         <a href="<?php echo esc_url(add_query_arg(['action' => 'edit', 'site_id' => $site->getSiteId()])); ?>" 
                            class="btn btn-primary">
-                            <i class="fas fa-edit"></i> <?php _e('Edit', 'wecoza-site-management'); ?>
+                            <i class="fas fa-edit"></i> Edit
                         </a>
                     <?php endif; ?>
                     <?php if ($show_delete_link && $can_delete): ?>
@@ -60,7 +60,7 @@ if (!$site) {
                                 class="btn btn-danger btn-delete-site" 
                                 data-site-id="<?php echo esc_attr($site->getSiteId()); ?>"
                                 data-site-name="<?php echo esc_attr($site->getSiteName()); ?>">
-                            <i class="fas fa-trash"></i> <?php _e('Delete', 'wecoza-site-management'); ?>
+                            <i class="fas fa-trash"></i> Delete
                         </button>
                     <?php endif; ?>
                 </div>
@@ -70,7 +70,7 @@ if (!$site) {
                                 class="btn btn-danger btn-delete-site" 
                                 data-site-id="<?php echo esc_attr($site->getSiteId()); ?>"
                                 data-site-name="<?php echo esc_attr($site->getSiteName()); ?>">
-                            <i class="fas fa-trash"></i> <?php _e('Delete', 'wecoza-site-management'); ?>
+                            <i class="fas fa-trash"></i> Delete
                         </button>
                     <?php endif; ?>
 
@@ -87,22 +87,22 @@ if (!$site) {
                 <div class="card-header">
                     <h5 class="card-title mb-0">
                         <i class="fas fa-info-circle"></i>
-                        <?php _e('Site Information', 'wecoza-site-management'); ?>
+                        Site Information
                     </h5>
                 </div>
                 <div class="card-body">
                     <dl class="row">
-                        <dt class="col-sm-3"><?php _e('Site ID:', 'wecoza-site-management'); ?></dt>
+                        <dt class="col-sm-3">Site ID:</dt>
                         <dd class="col-sm-9">
                             <span class="badge bg-secondary"><?php echo esc_html($site->getSiteId()); ?></span>
                         </dd>
 
-                        <dt class="col-sm-3"><?php _e('Site Name:', 'wecoza-site-management'); ?></dt>
+                        <dt class="col-sm-3">Site Name:</dt>
                         <dd class="col-sm-9">
                             <strong><?php echo esc_html($site->getSiteName()); ?></strong>
                         </dd>
 
-                        <dt class="col-sm-3"><?php _e('Client:', 'wecoza-site-management'); ?></dt>
+                        <dt class="col-sm-3">Client:</dt>
                         <dd class="col-sm-9">
                             <?php if ($client): ?>
                                 <span class="badge badge-phoenix badge-phoenix-primary">
@@ -111,20 +111,20 @@ if (!$site) {
                                 <small class="text-muted ms-2">ID: <?php echo esc_html($site->getClientId()); ?></small>
                             <?php else: ?>
                                 <span class="text-muted">
-                                    <?php _e('Unknown Client', 'wecoza-site-management'); ?>
+                                    Unknown Client
                                     <small>(ID: <?php echo esc_html($site->getClientId()); ?>)</small>
                                 </span>
                             <?php endif; ?>
                         </dd>
 
-                        <dt class="col-sm-3"><?php _e('Address:', 'wecoza-site-management'); ?></dt>
+                        <dt class="col-sm-3">Address:</dt>
                         <dd class="col-sm-9">
                             <?php if (!empty($site->getAddress())): ?>
                                 <div class="site-address">
                                     <?php echo nl2br(esc_html($site->getAddress())); ?>
                                 </div>
                             <?php else: ?>
-                                <span class="text-muted"><?php _e('No address provided', 'wecoza-site-management'); ?></span>
+                                <span class="text-muted">No address provided</span>
                             <?php endif; ?>
                         </dd>
                     </dl>
@@ -138,12 +138,12 @@ if (!$site) {
                 <div class="card-header">
                     <h5 class="card-title mb-0">
                         <i class="fas fa-clock"></i>
-                        <?php _e('Timestamps', 'wecoza-site-management'); ?>
+                        Timestamps
                     </h5>
                 </div>
                 <div class="card-body">
                     <dl class="row">
-                        <dt class="col-12"><?php _e('Created:', 'wecoza-site-management'); ?></dt>
+                        <dt class="col-12">Created:</dt>
                         <dd class="col-12 mb-3">
                             <?php if ($site->getCreatedAt()): ?>
                                 <div>
@@ -155,11 +155,11 @@ if (!$site) {
                                     <?php echo esc_html(date_i18n(get_option('time_format'), strtotime($site->getCreatedAt()))); ?>
                                 </small>
                             <?php else: ?>
-                                <span class="text-muted"><?php _e('Unknown', 'wecoza-site-management'); ?></span>
+                                <span class="text-muted">Unknown</span>
                             <?php endif; ?>
                         </dd>
 
-                        <dt class="col-12"><?php _e('Last Updated:', 'wecoza-site-management'); ?></dt>
+                        <dt class="col-12">Last Updated:</dt>
                         <dd class="col-12">
                             <?php if ($site->getUpdatedAt()): ?>
                                 <div>
@@ -175,10 +175,10 @@ if (!$site) {
                                 ?>
                                 <br>
                                 <small class="text-muted">
-                                    <?php printf(__('%s ago', 'wecoza-site-management'), $time_diff); ?>
+                                    <?php printf('%s ago', $time_diff); ?>
                                 </small>
                             <?php else: ?>
-                                <span class="text-muted"><?php _e('Never updated', 'wecoza-site-management'); ?></span>
+                                <span class="text-muted">Never updated</span>
                             <?php endif; ?>
                         </dd>
                     </dl>
@@ -200,7 +200,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const siteName = this.getAttribute('data-site-name');
 
             // Single confirmation dialog
-            const confirmMessage = `<?php echo esc_js(__('Are you sure you want to delete this site?', 'wecoza-site-management')); ?>\n\n<?php echo esc_js(__('Site:', 'wecoza-site-management')); ?> ${siteName}\n\n<?php echo esc_js(__('Warning: This action cannot be undone. All data associated with this site will be permanently removed.', 'wecoza-site-management')); ?>`;
+            const confirmMessage = `<?php echo esc_js('Are you sure you want to delete this site?'); ?>\n\n<?php echo esc_js('Site:'); ?> ${siteName}\n\n<?php echo esc_js('Warning: This action cannot be undone. All data associated with this site will be permanently removed.'); ?>`;
 
             if (confirm(confirmMessage)) {
                 deleteSite(siteId, this);
@@ -213,7 +213,7 @@ document.addEventListener('DOMContentLoaded', function() {
      */
     function deleteSite(siteId, button) {
         if (!siteId || typeof wecoza_site_management_ajax === 'undefined') {
-            showError('<?php echo esc_js(__("Unable to delete site. Missing required data.", "wecoza-site-management")); ?>');
+            showError('Unable to delete site. Missing required data.');
             return;
         }
 
@@ -223,7 +223,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Show loading state
         button.disabled = true;
-        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <?php echo esc_js(__("Deleting...", "wecoza-site-management")); ?>';
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
 
         // Prepare AJAX data
         const formData = new FormData();
@@ -245,7 +245,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             if (data.success) {
                 // Show success message
-                showSuccess('<?php echo esc_js(__("Site deleted successfully!", "wecoza-site-management")); ?>');
+                showSuccess('Site deleted successfully!');
 
                 // Redirect to list page after a short delay
                 setTimeout(function() {
@@ -253,7 +253,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }, 1500);
             } else {
                 // Show error message
-                const errorMessage = data.data || '<?php echo esc_js(__("Failed to delete site.", "wecoza-site-management")); ?>';
+                const errorMessage = data.data || 'Failed to delete site.';
                 showError(errorMessage);
 
                 // Restore button state
@@ -265,7 +265,7 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Delete site error:', error);
 
             // Show error message
-            showError('<?php echo esc_js(__("An error occurred while deleting the site. Please try again.", "wecoza-site-management")); ?>');
+            showError('An error occurred while deleting the site. Please try again.');
 
             // Restore button state
             button.disabled = originalDisabled;

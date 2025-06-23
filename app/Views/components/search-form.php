@@ -14,7 +14,7 @@ if (!defined('ABSPATH')) {
 // Extract variables
 $search_value = isset($search_value) ? $search_value : '';
 $search_param = isset($search_param) ? $search_param : 'search';
-$placeholder = isset($placeholder) ? $placeholder : __('Search...', 'wecoza-site-management');
+$placeholder = isset($placeholder) ? $placeholder : 'Search...';
 $form_id = isset($form_id) ? $form_id : 'search-form';
 $input_id = isset($input_id) ? $input_id : 'search-input';
 $show_clear = isset($show_clear) ? $show_clear : true;
@@ -55,7 +55,7 @@ $additional_fields = isset($additional_fields) ? $additional_fields : [];
                        autocomplete="off">
                 <button class="btn btn-outline-secondary" type="submit">
                     <i class="fas fa-search"></i>
-                    <span class="d-none d-sm-inline ms-1"><?php _e('Search', 'wecoza-site-management'); ?></span>
+                    <span class="d-none d-sm-inline ms-1">Search</span>
                 </button>
             </div>
         </div>
@@ -66,18 +66,18 @@ $additional_fields = isset($additional_fields) ? $additional_fields : [];
                 <?php if ($show_clear && !empty($search_value)): ?>
                     <a href="<?php echo esc_url(remove_query_arg([$search_param, 'page'])); ?>" 
                        class="btn btn-outline-secondary"
-                       title="<?php esc_attr_e('Clear search', 'wecoza-site-management'); ?>">
+                       title="Clear search">
                         <i class="fas fa-times"></i>
-                        <span class="d-none d-lg-inline ms-1"><?php _e('Clear', 'wecoza-site-management'); ?></span>
+                        <span class="d-none d-lg-inline ms-1">Clear</span>
                     </a>
                 <?php endif; ?>
                 
                 <?php if ($show_refresh): ?>
                     <button type="button" 
                             class="btn btn-outline-primary refresh-btn"
-                            title="<?php esc_attr_e('Refresh results', 'wecoza-site-management'); ?>">
+                            title="Refresh results">
                         <i class="fas fa-sync-alt"></i>
-                        <span class="d-none d-lg-inline ms-1"><?php _e('Refresh', 'wecoza-site-management'); ?></span>
+                        <span class="d-none d-lg-inline ms-1">Refresh</span>
                     </button>
                 <?php endif; ?>
             </div>
@@ -89,7 +89,7 @@ $additional_fields = isset($additional_fields) ? $additional_fields : [];
     <div class="search-info mt-2">
         <small class="text-muted">
             <i class="fas fa-search"></i>
-            <?php printf(__('Searching for: "%s"', 'wecoza-site-management'), '<strong>' . esc_html($search_value) . '</strong>'); ?>
+            <?php printf('Searching for: "%s"', '<strong>' . esc_html($search_value) . '</strong>'); ?>
         </small>
     </div>
     <?php endif; ?>
@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Add loading state
             const originalHTML = this.innerHTML;
             this.disabled = true;
-            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span class="d-none d-lg-inline ms-1"><?php echo esc_js(__("Refreshing...", "wecoza-site-management")); ?></span>';
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span class="d-none d-lg-inline ms-1">Refreshing...</span>';
             
             // Reload the page
             window.location.reload();

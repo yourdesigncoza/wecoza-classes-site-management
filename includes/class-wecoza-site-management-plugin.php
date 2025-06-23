@@ -79,25 +79,14 @@ class WeCoza_Site_Management_Plugin {
     /**
      * Enqueue admin assets
      */
-    public function enqueue_admin_assets($hook) {
-        // Only load on relevant admin pages
-        if (strpos($hook, 'wecoza-site-management') !== false) {
-            wp_enqueue_style(
-                'wecoza-site-management-admin',
-                WECOZA_SITE_MANAGEMENT_CSS_URL . 'admin.css',
-                array(),
-                $this->version
-            );
-
-            wp_enqueue_script(
-                'wecoza-site-management-admin',
-                WECOZA_SITE_MANAGEMENT_JS_URL . 'admin.js',
-                array('jquery'),
-                $this->version,
-                true
-            );
-        }
-    }
+    // public function enqueue_admin_assets($hook) {
+    //     // Only load on relevant admin pages
+    //     if (strpos($hook !== false) { 
+            
+    //         wp_enqueue_script( 'wecoza-site-management-admin', WECOZA_SITE_MANAGEMENT_JS_URL . 'admin.js', array('jquery'), $this->version, true)
+    //         wp_enqueue_style( 'wecoza-site-management-admin', WECOZA_SITE_MANAGEMENT_CSS_URL . 'admin.css', array(), $this->version );
+    //     }
+    // }
 
     /**
      * Enqueue public assets
@@ -110,20 +99,20 @@ class WeCoza_Site_Management_Plugin {
             has_shortcode($post->post_content, 'wecoza_site_form') ||
             has_shortcode($post->post_content, 'wecoza_site_details')) {
             
-            wp_enqueue_style(
-                'wecoza-site-management',
-                WECOZA_SITE_MANAGEMENT_CSS_URL . 'sites-management.css',
-                array(),
-                $this->version
-            );
+            // wp_enqueue_style(
+            //     'wecoza-site-management',
+            //     WECOZA_SITE_MANAGEMENT_CSS_URL . 'sites-management.css',
+            //     array(),
+            //     $this->version
+            // );
 
-            wp_enqueue_script(
-                'wecoza-site-management',
-                WECOZA_SITE_MANAGEMENT_JS_URL . 'sites-management.js',
-                array('jquery'),
-                $this->version,
-                true
-            );
+            // wp_enqueue_script(
+            //     'wecoza-site-management',
+            //     WECOZA_SITE_MANAGEMENT_JS_URL . 'sites-management.js',
+            //     array('jquery'),
+            //     $this->version,
+            //     true
+            // );
 
             // Localize script for AJAX
             wp_localize_script(
@@ -133,10 +122,10 @@ class WeCoza_Site_Management_Plugin {
                     'ajax_url' => admin_url('admin-ajax.php'),
                     'nonce' => wp_create_nonce('wecoza_site_management_nonce'),
                     'messages' => array(
-                        'confirm_delete' => __('Are you sure you want to delete this site?', 'wecoza-site-management'),
-                        'error_occurred' => __('An error occurred. Please try again.', 'wecoza-site-management'),
-                        'success_saved' => __('Site saved successfully!', 'wecoza-site-management'),
-                        'success_deleted' => __('Site deleted successfully!', 'wecoza-site-management'),
+                        'confirm_delete' => 'Are you sure you want to delete this site?',
+                        'error_occurred' => 'An error occurred. Please try again.',
+                        'success_saved' => 'Site saved successfully!',
+                        'success_deleted' => 'Site deleted successfully!',
                     )
                 )
             );

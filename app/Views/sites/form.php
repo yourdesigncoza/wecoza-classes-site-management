@@ -34,7 +34,7 @@ $address = $site ? $site->getAddress() : (isset($form_data['address']) ? $form_d
     <div class="alert alert-subtle-danger" role="alert">
         <h6 class="alert-heading">
             <i class="fas fa-exclamation-triangle"></i>
-            <?php _e('Please correct the following errors:', 'wecoza-site-management'); ?>
+            Please correct the following errors:
         </h6>
         <ul class="mb-0">
             <?php foreach ($errors as $field => $error): ?>
@@ -51,17 +51,17 @@ $address = $site ? $site->getAddress() : (isset($form_data['address']) ? $form_d
                 <h4 class="form-title mb-0">
                     <?php if ($is_edit): ?>
                         <i class="fas fa-edit text-primary"></i>
-                        <?php _e('Edit Site', 'wecoza-site-management'); ?>
+                        Edit Site
                         <small class="text-muted">#<?php echo esc_html($site_id); ?></small>
                     <?php else: ?>
                         <i class="fas fa-plus text-success"></i>
-                        <?php _e('Add New Client Site', 'wecoza-site-management'); ?>
+                        Add New Client Site
                     <?php endif; ?>
                     
                 </h4>
 
             <p class="mb-2 mb-md-0 mb-lg-2 text-body-tertiary">
-                <?php _e('Site Information', 'wecoza-site-management'); ?>
+                Site Information
                     </p>
         </div>
         <div class="card-body">
@@ -83,7 +83,7 @@ $address = $site ? $site->getAddress() : (isset($form_data['address']) ? $form_d
                     <?php if ($show_client_selector): ?>
                     <div class="col-md-6 mb-3">
                         <label for="client_id" class="form-label">
-                            <?php _e('Client', 'wecoza-site-management'); ?>
+                            Client
                             <span class="text-danger">*</span>
                         </label>
                         <select class="form-select <?php echo isset($errors['client_id']) ? 'is-invalid' : ''; ?>" 
@@ -91,7 +91,7 @@ $address = $site ? $site->getAddress() : (isset($form_data['address']) ? $form_d
                                 name="client_id" 
                                 required>
                             <option value="">
-                                <?php _e('Select a client...', 'wecoza-site-management'); ?>
+                                Select a client...
                             </option>
                             <?php foreach ($clients as $id => $name): ?>
                                 <option value="<?php echo esc_attr($id); ?>" 
@@ -106,7 +106,7 @@ $address = $site ? $site->getAddress() : (isset($form_data['address']) ? $form_d
                             </div>
                         <?php endif; ?>
                         <div class="form-text">
-                            <?php _e('Select the client this site belongs to.', 'wecoza-site-management'); ?>
+                            Select the client this site belongs to.
                         </div>
                     </div>
                     <?php endif; ?>
@@ -114,7 +114,7 @@ $address = $site ? $site->getAddress() : (isset($form_data['address']) ? $form_d
                     <!-- Site Name -->
                     <div class="<?php echo $show_client_selector ? 'col-md-6' : 'col-md-12'; ?> mb-3">
                         <label for="site_name" class="form-label">
-                            <?php _e('Site Name', 'wecoza-site-management'); ?>
+                            Site Name
                             <span class="text-danger">*</span>
                         </label>
                         <input type="text" 
@@ -130,7 +130,7 @@ $address = $site ? $site->getAddress() : (isset($form_data['address']) ? $form_d
                             </div>
                         <?php endif; ?>
                         <div class="form-text">
-                            <?php _e('Enter a descriptive name for this site (2-100 characters).', 'wecoza-site-management'); ?>
+                            Enter a descriptive name for this site (2-100 characters).
                         </div>
                     </div>
                 </div>
@@ -138,21 +138,21 @@ $address = $site ? $site->getAddress() : (isset($form_data['address']) ? $form_d
                 <!-- Address -->
                 <div class="mb-3">
                     <label for="address" class="form-label">
-                        <?php _e('Address', 'wecoza-site-management'); ?>
+                        Address
                     </label>
                     <textarea class="form-control <?php echo isset($errors['address']) ? 'is-invalid' : ''; ?>" 
                               id="address" 
                               name="address" 
                               rows="3"
                               maxlength="1000"
-                              placeholder="<?php esc_attr_e('Enter the full address of this site...', 'wecoza-site-management'); ?>"><?php echo esc_textarea($address); ?></textarea>
+                              placeholder="Enter the full address of this site..."><?php echo esc_textarea($address); ?></textarea>
                     <?php if (isset($errors['address'])): ?>
                         <div class="invalid-feedback">
                             <?php echo esc_html($errors['address']); ?>
                         </div>
                     <?php endif; ?>
                     <div class="form-text">
-                        <?php _e('Optional. Enter the complete address including street, city, postal code, etc.', 'wecoza-site-management'); ?>
+                        Optional. Enter the complete address including street, city, postal code, etc.
                     </div>
                 </div>
 
@@ -164,21 +164,21 @@ $address = $site ? $site->getAddress() : (isset($form_data['address']) ? $form_d
                             <div>
                                 <span class="text-muted">
                                     <i class="fas fa-info-circle"></i>
-                                    <?php _e('Fields marked with * are required.', 'wecoza-site-management'); ?>
+                                    Fields marked with * are required.
                                 </span>
                             </div>
                             <div class="btn-group">
                                 <a href="<?php echo esc_url(remove_query_arg(['action', 'site_id'])); ?>" 
                                    class="btn btn-outline-secondary">
                                     <i class="fas fa-times"></i>
-                                    <?php _e('Cancel', 'wecoza-site-management'); ?>
+                                    Cancel
                                 </a>
                                 <button type="submit" class="btn btn-primary" id="submit-btn">
                                     <i class="fas fa-save"></i>
                                     <?php if ($is_edit): ?>
-                                        <?php _e('Update Site', 'wecoza-site-management'); ?>
+                                        Update Site
                                     <?php else: ?>
-                                        <?php _e('Create Site', 'wecoza-site-management'); ?>
+                                        Create Site
                                     <?php endif; ?>
                                 </button>
                             </div>
@@ -197,9 +197,9 @@ $address = $site ? $site->getAddress() : (isset($form_data['address']) ? $form_d
      style="background: rgba(0,0,0,0.5); z-index: 9999; display: none !important;">
     <div class="text-center text-white">
         <div class="spinner-border mb-3" role="status">
-            <span class="visually-hidden"><?php _e('Loading...', 'wecoza-site-management'); ?></span>
+            <span class="visually-hidden">Loading...</span>
         </div>
-        <p><?php _e('Saving site...', 'wecoza-site-management'); ?></p>
+        <p>Saving site...</p>
     </div>
 </div>
 
@@ -218,7 +218,7 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             // Show loading state
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <?php echo esc_js(__("Saving...", "wecoza-site-management")); ?>';
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
             loadingOverlay.style.display = 'flex';
         }
         

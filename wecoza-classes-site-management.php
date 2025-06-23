@@ -40,8 +40,8 @@ define('WECOZA_SITE_MANAGEMENT_CONFIG_DIR', WECOZA_SITE_MANAGEMENT_PLUGIN_DIR . 
 
 // Define plugin URLs
 define('WECOZA_SITE_MANAGEMENT_ASSETS_URL', WECOZA_SITE_MANAGEMENT_PLUGIN_URL . 'assets/');
-define('WECOZA_SITE_MANAGEMENT_JS_URL', WECOZA_SITE_MANAGEMENT_ASSETS_URL . 'js/');
-define('WECOZA_SITE_MANAGEMENT_CSS_URL', WECOZA_SITE_MANAGEMENT_ASSETS_URL . 'css/');
+// define('WECOZA_SITE_MANAGEMENT_JS_URL', WECOZA_SITE_MANAGEMENT_ASSETS_URL . 'js/');
+// define('WECOZA_SITE_MANAGEMENT_CSS_URL', WECOZA_SITE_MANAGEMENT_ASSETS_URL . 'css/');
 
 /**
  * Plugin activation hook
@@ -69,18 +69,6 @@ function uninstall_wecoza_site_management_plugin() {
     WeCoza_Site_Management_Uninstaller::uninstall();
 }
 register_uninstall_hook(__FILE__, 'uninstall_wecoza_site_management_plugin');
-
-/**
- * Load plugin text domain for internationalization
- */
-function wecoza_site_management_load_textdomain() {
-    load_plugin_textdomain(
-        'wecoza-site-management',
-        false,
-        dirname(WECOZA_SITE_MANAGEMENT_PLUGIN_BASENAME) . '/languages/'
-    );
-}
-add_action('plugins_loaded', 'wecoza_site_management_load_textdomain');
 
 /**
  * Initialize the plugin
@@ -124,7 +112,7 @@ function wecoza_site_management_init() {
  */
 function wecoza_site_management_wordpress_version_notice() {
     echo '<div class="notice notice-error"><p>';
-    echo esc_html__('WeCoza Site Management requires WordPress 5.0 or higher. Please update WordPress.', 'wecoza-site-management');
+    echo esc_html('WeCoza Site Management requires WordPress 5.0 or higher. Please update WordPress.');
     echo '</p></div>';
 }
 
@@ -133,7 +121,7 @@ function wecoza_site_management_wordpress_version_notice() {
  */
 function wecoza_site_management_php_version_notice() {
     echo '<div class="notice notice-error"><p>';
-    echo esc_html__('WeCoza Site Management requires PHP 7.4 or higher. Please update PHP.', 'wecoza-site-management');
+    echo esc_html('WeCoza Site Management requires PHP 7.4 or higher. Please update PHP.');
     echo '</p></div>';
 }
 

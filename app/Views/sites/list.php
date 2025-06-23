@@ -93,9 +93,9 @@ $can_delete = isset($can_delete) ? $can_delete : false;
             <div class="alert alert-subtle-info d-flex align-items-center">
                 <i class="bi bi-info-circle-fill me-3 fs-4"></i>
                 <div>
-                    <h6 class="alert-heading mb-1"><?php _e('No Sites Found', 'wecoza-site-management'); ?></h6>
+                    <h6 class="alert-heading mb-1">No Sites Found</h6>
                     <p class="mb-0">
-                        <?php _e('There are currently no sites in the database. Create a new site to get started.', 'wecoza-site-management'); ?>
+                        There are currently no sites in the database. Create a new site to get started.
                     </p>
                 </div>
             </div>
@@ -106,7 +106,7 @@ $can_delete = isset($can_delete) ? $can_delete : false;
                     <div class="row g-3 justify-content-between align-items-center mb-3">
                         <div class="col-12 col-md">
                             <h4 class="text-body mb-0" data-anchor="data-anchor" id="sites-table-header">
-                                <?php _e('Sites Management', 'wecoza-site-management'); ?>
+                                Sites Management
                                 <i class="bi bi-building ms-2"></i>
                             </h4>
                         </div>
@@ -118,9 +118,9 @@ $can_delete = isset($can_delete) ? $can_delete : false;
                                        name="sites_search"
                                        id="sites_search"
                                        value="<?php echo esc_attr($search); ?>"
-                                       placeholder="<?php esc_attr_e('Search sites... (Press Enter)', 'wecoza-site-management'); ?>"
+                                       placeholder="Search sites... (Press Enter)"
                                        aria-label="Search"
-                                       title="<?php esc_attr_e('Type your search query and press Enter to search', 'wecoza-site-management'); ?>">
+                                       title="Type your search query and press Enter to search">
                                 <svg class="svg-inline--fa fa-magnifying-glass search-box-icon" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="magnifying-glass" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z"></path></svg>
                             </form>
                         </div>
@@ -128,14 +128,14 @@ $can_delete = isset($can_delete) ? $can_delete : false;
                         <div class="col-auto">
                             <div class="d-flex gap-2">
                                 <button type="button" class="btn btn-outline-secondary btn-sm" onclick="refreshSites()">
-                                    <?php _e('Refresh', 'wecoza-site-management'); ?>
+                                    Refresh
                                     <i class="bi bi-arrow-clockwise ms-1"></i>
                                 </button>
                                 <?php if ($can_edit): ?>
                                 <a href="<?php echo esc_url(add_query_arg('action', 'create', remove_query_arg(['sites_search', 'sites_page', 'site_id']))); ?>"
                                    class="btn btn-primary btn-sm">
                                     <i class="bi bi-plus-circle me-1"></i>
-                                    <?php _e('Add New Site', 'wecoza-site-management'); ?>
+                                    Add New Site
                                 </a>
                                 <?php endif; ?>
                             </div>
@@ -146,19 +146,19 @@ $can_delete = isset($can_delete) ? $can_delete : false;
                         <div class="scrollbar">
                             <div class="row g-0 flex-nowrap">
                                 <div class="col-auto border-end pe-4">
-                                    <h6 class="text-body-tertiary"><?php _e('Total Sites', 'wecoza-site-management'); ?> : <?php echo $total_sites; ?></h6>
+                                    <h6 class="text-body-tertiary">Total Sites : <?php echo $total_sites; ?></h6>
                                 </div>
                                 <div class="col-auto px-4 border-end">
-                                    <h6 class="text-body-tertiary" id="unique-clients-count"><?php _e('Unique Clients', 'wecoza-site-management'); ?> : <?php echo $unique_clients; ?></h6>
+                                    <h6 class="text-body-tertiary" id="unique-clients-count">Unique Clients : <?php echo $unique_clients; ?></h6>
                                 </div>
                                 <?php if (!empty($search)): ?>
                                 <div class="col-auto px-4">
                                     <h6 class="text-body-tertiary">
-                                        <?php _e('Search Results', 'wecoza-site-management'); ?> :
+                                        Search Results :
                                         <?php if (count($sites) > 0): ?>
                                             <?php echo count($sites); ?> <div class="badge badge-phoenix fs-10 badge-phoenix-info">filtered</div>
                                         <?php else: ?>
-                                            <span class="badge badge-phoenix fs-10 badge-phoenix-danger"><?php _e('No Search Results', 'wecoza-site-management'); ?></span>
+                                            <span class="badge badge-phoenix fs-10 badge-phoenix-danger">No Search Results</span>
                                         <?php endif; ?>
                                     </h6>
                                 </div>
@@ -174,32 +174,32 @@ $can_delete = isset($can_delete) ? $can_delete : false;
                             <thead class="border-bottom">
                                 <tr>
                                     <th scope="col" class="border-0 ps-4" data-sortable="true" data-sort-key="site_id" data-sort-type="numeric">
-                                        <?php _e('ID', 'wecoza-site-management'); ?>
+                                        ID
                                         <i class="bi bi-hash ms-1"></i>
                                         <span class="sort-indicator d-none"><i class="bi bi-chevron-up"></i></span>
                                     </th>
                                     <th scope="col" class="border-0" data-sortable="true" data-sort-key="site_name" data-sort-type="text">
-                                        <?php _e('Site Name', 'wecoza-site-management'); ?>
+                                        Site Name
                                         <i class="bi bi-building ms-1"></i>
                                         <span class="sort-indicator d-none"><i class="bi bi-chevron-up"></i></span>
                                     </th>
                                     <th scope="col" class="border-0" data-sortable="true" data-sort-key="client_name" data-sort-type="text">
-                                        <?php _e('Client', 'wecoza-site-management'); ?>
+                                        Client
                                         <i class="bi bi-person-badge ms-1"></i>
                                         <span class="sort-indicator d-none"><i class="bi bi-chevron-up"></i></span>
                                     </th>
                                     <th scope="col" class="border-0" data-sortable="true" data-sort-key="address" data-sort-type="text">
-                                        <?php _e('Address', 'wecoza-site-management'); ?>
+                                        Address
                                         <i class="bi bi-geo-alt ms-1"></i>
                                         <span class="sort-indicator d-none"><i class="bi bi-chevron-up"></i></span>
                                     </th>
                                     <th scope="col" class="border-0" data-sortable="true" data-sort-key="created_at" data-sort-type="date">
-                                        <?php _e('Created', 'wecoza-site-management'); ?>
+                                        Created
                                         <i class="bi bi-calendar-date ms-1"></i>
                                         <span class="sort-indicator d-none"><i class="bi bi-chevron-up"></i></span>
                                     </th>
                                     <th scope="col" class="border-0 pe-4" data-sortable="false">
-                                        <?php _e('Actions', 'wecoza-site-management'); ?>
+                                        Actions
                                         <i class="bi bi-gear ms-1"></i>
                                     </th>
                                 </tr>
@@ -211,8 +211,8 @@ $can_delete = isset($can_delete) ? $can_delete : false;
                                         <td colspan="6" class="text-center py-5">
                                             <div class="text-muted">
                                                 <i class="bi bi-search fs-1 mb-3 d-block"></i>
-                                                <h6 class="mb-2"><?php _e('No sites match your search', 'wecoza-site-management'); ?></h6>
-                                                <p class="mb-0"><?php printf(__('No sites found for "%s"', 'wecoza-site-management'), esc_html($search)); ?></p>
+                                                <h6 class="mb-2">No sites match your search</h6>
+                                                <p class="mb-0"><?php printf('No sites found for "%s"', esc_html($search)); ?></p>
                                             </div>
                                         </td>
                                     </tr>
@@ -222,8 +222,8 @@ $can_delete = isset($can_delete) ? $can_delete : false;
                                         <td colspan="6" class="text-center py-5">
                                             <div class="text-muted">
                                                 <i class="bi bi-building fs-1 mb-3 d-block"></i>
-                                                <h6 class="mb-2"><?php _e('No sites found', 'wecoza-site-management'); ?></h6>
-                                                <p class="mb-0"><?php _e('No sites have been created yet.', 'wecoza-site-management'); ?></p>
+                                                <h6 class="mb-2">No sites found</h6>
+                                                <p class="mb-0">No sites have been created yet.</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -256,7 +256,7 @@ $can_delete = isset($can_delete) ? $can_delete : false;
                                                 </span> <small class="text-muted">ID: <?php echo esc_html($site->getClientId()); ?></small>
                                             <?php else: ?>
                                                 <span class="badge fs-10 badge-phoenix badge-phoenix-warning">
-                                                    <?php _e('Unknown Client', 'wecoza-site-management'); ?>
+                                                    Unknown Client
                                                     <i class="bi bi-exclamation-triangle ms-1"></i>
                                                 </span>
                                             <?php endif; ?>
@@ -267,7 +267,7 @@ $can_delete = isset($can_delete) ? $can_delete : false;
                                                     <?php echo esc_html(wp_trim_words($site->getAddress(), 6, '...')); ?>
                                                 </span>
                                             <?php else: ?>
-                                                <span class="text-muted"><?php _e('No address', 'wecoza-site-management'); ?></span>
+                                                <span class="text-muted">No address</span>
                                             <?php endif; ?>
                                         </td>
                                         <td>
@@ -295,7 +295,7 @@ $can_delete = isset($can_delete) ? $can_delete : false;
                                                         <button type="button"
                                                                 class="dropdown-item btn-view-site"
                                                                 data-site-id="<?php echo esc_attr($site->getSiteId()); ?>">
-                                                            <?php _e('View Details', 'wecoza-site-management'); ?>
+                                                            View Details
                                                             <i class="bi bi-eye ms-2"></i>
                                                         </button>
                                                     </li>
@@ -303,7 +303,7 @@ $can_delete = isset($can_delete) ? $can_delete : false;
                                                     <?php if ($can_edit): ?>
                                                     <li>
                                                         <a class="dropdown-item" href="<?php echo esc_url(add_query_arg(['action' => 'edit', 'site_id' => $site->getSiteId()])); ?>">
-                                                            <?php _e('Edit Site', 'wecoza-site-management'); ?>
+                                                            Edit Site
                                                             <i class="bi bi-pencil ms-2"></i>
                                                         </a>
                                                     </li>
@@ -317,7 +317,7 @@ $can_delete = isset($can_delete) ? $can_delete : false;
                                                                 class="dropdown-item text-danger btn-delete-site"
                                                                 data-site-id="<?php echo esc_attr($site->getSiteId()); ?>"
                                                                 data-site-name="<?php echo esc_attr($site->getSiteName()); ?>">
-                                                            <?php _e('Delete Site', 'wecoza-site-management'); ?>
+                                                            Delete Site
                                                             <i class="bi bi-trash ms-2"></i>
                                                         </button>
                                                     </li>
@@ -362,7 +362,7 @@ $can_delete = isset($can_delete) ? $can_delete : false;
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="siteDetailsModalLabel">
-                    <?php _e('Site Details', 'wecoza-site-management'); ?>
+                    Site Details
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -371,7 +371,7 @@ $can_delete = isset($can_delete) ? $can_delete : false;
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    <?php _e('Close', 'wecoza-site-management'); ?>
+                    Close
                 </button>
             </div>
         </div>

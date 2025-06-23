@@ -88,12 +88,12 @@ class SiteController {
                     'ajax_url' => admin_url('admin-ajax.php'),
                     'nonce' => wp_create_nonce('wecoza_site_management_nonce'),
                     'messages' => [
-                        'confirm_delete' => __('Are you sure you want to delete this site?', 'wecoza-site-management'),
-                        'error_occurred' => __('An error occurred. Please try again.', 'wecoza-site-management'),
-                        'success_saved' => __('Site saved successfully!', 'wecoza-site-management'),
-                        'success_deleted' => __('Site deleted successfully!', 'wecoza-site-management'),
-                        'loading' => __('Loading...', 'wecoza-site-management'),
-                        'no_results' => __('No sites found.', 'wecoza-site-management'),
+                        'confirm_delete' => 'Are you sure you want to delete this site?',
+                        'error_occurred' => 'An error occurred. Please try again.',
+                        'success_saved' => 'Site saved successfully!',
+                        'success_deleted' => 'Site deleted successfully!',
+                        'loading' => 'Loading...',
+                        'no_results' => 'No sites found.',
                     ]
                 ]
             );
@@ -110,7 +110,7 @@ class SiteController {
         // Check user capabilities
         if (!current_user_can('read')) {
             return '<div class="alert alert-subtle-warning">' . 
-                   __('You do not have permission to view sites.', 'wecoza-site-management') . 
+                   'You do not have permission to view sites.' . 
                    '</div>';
         }
         
@@ -175,7 +175,7 @@ class SiteController {
         } catch (\Exception $e) {
             \WeCozaSiteManagement\plugin_log('Error in sitesListShortcode: ' . $e->getMessage(), 'error');
             return '<div class="alert alert-subtle-danger">' . 
-                   __('Error loading sites. Please try again later.', 'wecoza-site-management') . 
+                   'Error loading sites. Please try again later.' . 
                    '</div>';
         }
     }
@@ -190,7 +190,7 @@ class SiteController {
         // Check user capabilities
         if (!current_user_can('edit_posts')) {
             return '<div class="alert alert-subtle-warning">' . 
-                   __('You do not have permission to create or edit sites.', 'wecoza-site-management') . 
+                   'You do not have permission to create or edit sites.' . 
                    '</div>';
         }
         
@@ -217,7 +217,7 @@ class SiteController {
                 $site = SiteModel::find($site_id);
                 if (!$site) {
                     return '<div class="alert alert-subtle-danger">' . 
-                           __('Site not found.', 'wecoza-site-management') . 
+                           'Site not found.' . 
                            '</div>';
                 }
             }
@@ -243,7 +243,7 @@ class SiteController {
         } catch (\Exception $e) {
             \WeCozaSiteManagement\plugin_log('Error in siteFormShortcode: ' . $e->getMessage(), 'error');
             return '<div class="alert alert-subtle-danger">' . 
-                   __('Error loading form. Please try again later.', 'wecoza-site-management') . 
+                   'Error loading form. Please try again later.' . 
                    '</div>';
         }
     }
@@ -258,7 +258,7 @@ class SiteController {
         // Check user capabilities
         if (!current_user_can('read')) {
             return '<div class="alert alert-subtle-warning">' . 
-                   __('You do not have permission to view site details.', 'wecoza-site-management') . 
+                   'You do not have permission to view site details.' . 
                    '</div>';
         }
         
@@ -274,8 +274,8 @@ class SiteController {
                    (isset($_GET['site_id']) ? intval($_GET['site_id']) : null);
         
         if (!$site_id) {
-            return '<div class="alert alert-subtle-warning">' . 
-                   __('No site ID provided.', 'wecoza-site-management') . 
+            return '<div class="alert alert-subtle-primary">' . 
+                   'To Edit a site, select it from the list.' . 
                    '</div>';
         }
         
@@ -284,7 +284,7 @@ class SiteController {
             $site = SiteModel::find($site_id);
             if (!$site) {
                 return '<div class="alert alert-subtle-danger">' . 
-                       __('Site not found.', 'wecoza-site-management') . 
+                       'Site not found.' . 
                        '</div>';
             }
             
@@ -307,7 +307,7 @@ class SiteController {
         } catch (\Exception $e) {
             \WeCozaSiteManagement\plugin_log('Error in siteDetailsShortcode: ' . $e->getMessage(), 'error');
             return '<div class="alert alert-subtle-danger">' .
-                   __('Error loading site details. Please try again later.', 'wecoza-site-management') .
+                   'Error loading site details. Please try again later.' .
                    '</div>';
         }
     }
@@ -322,7 +322,7 @@ class SiteController {
         // Verify nonce
         if (!wp_verify_nonce($_POST['wecoza_site_nonce'], 'wecoza_site_management_nonce')) {
             return '<div class="alert alert-subtle-danger">' .
-                   __('Security check failed. Please try again.', 'wecoza-site-management') .
+                   'Security check failed. Please try again.' .
                    '</div>';
         }
 
@@ -340,7 +340,7 @@ class SiteController {
 
             if ($form_data['site_id'] && !$site) {
                 return '<div class="alert alert-subtle-danger">' .
-                       __('Site not found.', 'wecoza-site-management') .
+                       'Site not found.' .
                        '</div>';
             }
 
@@ -370,8 +370,8 @@ class SiteController {
             $result = $site->save();
             if ($result) {
                 $success_message = $form_data['site_id'] ?
-                    __('Site updated successfully!', 'wecoza-site-management') :
-                    __('Site created successfully!', 'wecoza-site-management');
+                    'Site updated successfully!' :
+                    'Site created successfully!';
 
                 // Redirect if URL provided
                 if (!empty($atts['redirect_url'])) {
@@ -382,14 +382,14 @@ class SiteController {
                 return '<div class="alert alert-subtle-success">' . $success_message . '</div>';
             } else {
                 return '<div class="alert alert-subtle-danger">' .
-                       __('Failed to save site. Please try again.', 'wecoza-site-management') .
+                       'Failed to save site. Please try again.' .
                        '</div>';
             }
 
         } catch (\Exception $e) {
             \WeCozaSiteManagement\plugin_log('Error handling form submission: ' . $e->getMessage(), 'error');
             return '<div class="alert alert-subtle-danger">' .
-                   __('An error occurred while saving. Please try again.', 'wecoza-site-management') .
+                   'An error occurred while saving. Please try again.' .
                    '</div>';
         }
     }
@@ -399,7 +399,7 @@ class SiteController {
      */
     public function ajaxSearchSites() {
         // DISABLED FOR DEBUGGING - Search functionality temporarily disabled
-        wp_send_json_error(__('Search functionality temporarily disabled for debugging.', 'wecoza-site-management'));
+        wp_send_json_error('Search functionality temporarily disabled for debugging.');
     }
 
     /**
@@ -408,37 +408,37 @@ class SiteController {
     public function ajaxDeleteSite() {
         // Verify nonce
         if (!wp_verify_nonce($_POST['nonce'], 'wecoza_site_management_nonce')) {
-            wp_die(__('Security check failed.', 'wecoza-site-management'));
+            wp_die('Security check failed.');
         }
 
         // Check capabilities
         if (!current_user_can('delete_posts')) {
-            wp_die(__('Permission denied.', 'wecoza-site-management'));
+            wp_die('Permission denied.');
         }
 
         try {
             $site_id = isset($_POST['site_id']) ? intval($_POST['site_id']) : 0;
 
             if (!$site_id) {
-                wp_send_json_error(__('Invalid site ID.', 'wecoza-site-management'));
+                wp_send_json_error('Invalid site ID.');
             }
 
             $site = SiteModel::find($site_id);
             if (!$site) {
-                wp_send_json_error(__('Site not found.', 'wecoza-site-management'));
+                wp_send_json_error('Site not found.');
             }
 
             $success = $site->delete();
 
             if ($success) {
-                wp_send_json_success(__('Site deleted successfully.', 'wecoza-site-management'));
+                wp_send_json_success('Site deleted successfully.');
             } else {
-                wp_send_json_error(__('Failed to delete site.', 'wecoza-site-management'));
+                wp_send_json_error('Failed to delete site.');
             }
 
         } catch (\Exception $e) {
             \WeCozaSiteManagement\plugin_log('AJAX delete error: ' . $e->getMessage(), 'error');
-            wp_send_json_error(__('Delete failed. Please try again.', 'wecoza-site-management'));
+            wp_send_json_error('Delete failed. Please try again.');
         }
     }
 
@@ -448,24 +448,24 @@ class SiteController {
     public function ajaxGetSiteDetails() {
         // Verify nonce
         if (!wp_verify_nonce($_POST['nonce'], 'wecoza_site_management_nonce')) {
-            wp_die(__('Security check failed.', 'wecoza-site-management'));
+            wp_die('Security check failed.');
         }
 
         // Check capabilities
         if (!current_user_can('read')) {
-            wp_die(__('Permission denied.', 'wecoza-site-management'));
+            wp_die('Permission denied.');
         }
 
         try {
             $site_id = isset($_POST['site_id']) ? intval($_POST['site_id']) : 0;
 
             if (!$site_id) {
-                wp_send_json_error(__('Invalid site ID.', 'wecoza-site-management'));
+                wp_send_json_error('Invalid site ID.');
             }
 
             $site = SiteModel::find($site_id);
             if (!$site) {
-                wp_send_json_error(__('Site not found.', 'wecoza-site-management'));
+                wp_send_json_error('Site not found.');
             }
 
             $client = ClientModel::find($site->getClientId());
@@ -479,7 +479,7 @@ class SiteController {
 
         } catch (\Exception $e) {
             \WeCozaSiteManagement\plugin_log('AJAX get details error: ' . $e->getMessage(), 'error');
-            wp_send_json_error(__('Failed to load site details.', 'wecoza-site-management'));
+            wp_send_json_error('Failed to load site details.');
         }
     }
 
@@ -489,12 +489,12 @@ class SiteController {
     public function ajaxSaveSite() {
         // Verify nonce
         if (!wp_verify_nonce($_POST['nonce'], 'wecoza_site_management_nonce')) {
-            wp_die(__('Security check failed.', 'wecoza-site-management'));
+            wp_die('Security check failed.');
         }
 
         // Check capabilities
         if (!current_user_can('edit_posts')) {
-            wp_die(__('Permission denied.', 'wecoza-site-management'));
+            wp_die('Permission denied.');
         }
 
         try {
@@ -509,7 +509,7 @@ class SiteController {
             $site = $form_data['site_id'] ? SiteModel::find($form_data['site_id']) : new SiteModel();
 
             if ($form_data['site_id'] && !$site) {
-                wp_send_json_error(__('Site not found.', 'wecoza-site-management'));
+                wp_send_json_error('Site not found.');
             }
 
             // Fill site with form data
@@ -519,7 +519,7 @@ class SiteController {
             $validation_errors = $site->validate();
             if (!empty($validation_errors)) {
                 wp_send_json_error([
-                    'message' => __('Validation failed.', 'wecoza-site-management'),
+                    'message' => 'Validation failed.',
                     'errors' => $validation_errors
                 ]);
             }
@@ -528,20 +528,20 @@ class SiteController {
             $result = $site->save();
             if ($result) {
                 $message = $form_data['site_id'] ?
-                    __('Site updated successfully!', 'wecoza-site-management') :
-                    __('Site created successfully!', 'wecoza-site-management');
+                    'Site updated successfully!' :
+                    'Site created successfully!';
 
                 wp_send_json_success([
                     'message' => $message,
                     'site' => $site->toArray()
                 ]);
             } else {
-                wp_send_json_error(__('Failed to save site.', 'wecoza-site-management'));
+                wp_send_json_error('Failed to save site.');
             }
 
         } catch (\Exception $e) {
             \WeCozaSiteManagement\plugin_log('AJAX save error: ' . $e->getMessage(), 'error');
-            wp_send_json_error(__('Save failed. Please try again.', 'wecoza-site-management'));
+            wp_send_json_error('Save failed. Please try again.');
         }
     }
 }
