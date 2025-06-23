@@ -620,14 +620,14 @@ class SiteModel {
 
     /**
      * Get cached sites with clients data for debugging with intelligent cache invalidation
-     * Uses WordPress transients for performance optimization
+     * Uses Redis object caching with versioning for performance optimization
      *
      * @param int $limit Maximum number of sites to retrieve (default: 1000)
      * @param bool $force_refresh Force cache refresh (default: false)
      * @return array Contains sites_with_clients, statistics, performance metrics, and cache info
      */
     public static function getCachedSitesWithClientsForDebug($limit = 1000, $force_refresh = false) {
-        $cache_key = 'wecoza_sites_debug_cache_v1';
+        $cache_key = 'wecoza_sites_debug_cache';
         $cache_expiration = DAY_IN_SECONDS; // 24 hours
         $start_time = microtime(true);
 
@@ -645,8 +645,8 @@ class SiteModel {
             $cached_data = null;
 
             if (!$should_refresh) {
-                // Get cached data
-                $cached_data = get_transient($cache_key);
+                // Get cached data using Redis object cache with versioning
+                $cached_data = \WeCozaSiteManagement\CacheHelper::get($cache_key);
 
                 if ($cached_data === false) {
                     $should_refresh = true;
@@ -667,15 +667,16 @@ class SiteModel {
                 if (!isset($fresh_data['error'])) {
                     // Store in cache with metadata
                     $cache_data = $fresh_data;
+                    $cache_version = \WeCozaSiteManagement\CacheHelper::get_cache_version();
                     $cache_data['cache_metadata'] = [
                         'created_at' => current_time('mysql'),
                         'created_timestamp' => time(),
                         'expires_at' => date('Y-m-d H:i:s', time() + $cache_expiration),
-                        'cache_version' => 'v1'
+                        'cache_version' => $cache_version
                     ];
 
-                    // Set transient
-                    set_transient($cache_key, $cache_data, $cache_expiration);
+                    // Set cache using Redis object cache with versioning
+                    \WeCozaSiteManagement\CacheHelper::set($cache_key, $cache_data, $cache_expiration);
 
                     $cache_status['cache_created_at'] = $cache_data['cache_metadata']['created_at'];
                     $cache_status['cache_expires_at'] = $cache_data['cache_metadata']['expires_at'];
@@ -731,17 +732,16 @@ class SiteModel {
     }
 
     /**
-     * Clear debug cache manually
+     * Clear debug cache manually using cache versioning
      * Useful for debugging or when data changes outside normal operations
      *
      * @return bool Success status
      */
     public static function clearDebugCache() {
-        $cache_key = 'wecoza_sites_debug_cache_v1';
+        // Use cache versioning for bulk invalidation
+        $result = \WeCozaSiteManagement\CacheHelper::clear_all();
 
-        $result = delete_transient($cache_key);
-
-        \WeCozaSiteManagement\plugin_log('Debug cache manually cleared');
+        \WeCozaSiteManagement\plugin_log('Debug cache manually cleared using version bump');
 
         return $result;
     }
@@ -752,19 +752,22 @@ class SiteModel {
      * @return array Cache status details
      */
     public static function getDebugCacheStatus() {
-        $cache_key = 'wecoza_sites_debug_cache_v1';
+        $cache_key = 'wecoza_sites_debug_cache';
 
-        $cached_data = get_transient($cache_key);
+        $cached_data = \WeCozaSiteManagement\CacheHelper::get($cache_key);
 
         $status = [
             'cache_exists' => $cached_data !== false,
-            'cache_size_bytes' => $cached_data !== false ? strlen(serialize($cached_data)) : 0,
+            'cache_size_bytes' => \WeCozaSiteManagement\CacheHelper::get_cache_size($cache_key),
+            'cache_version' => \WeCozaSiteManagement\CacheHelper::get_cache_version(),
+            'redis_available' => \WeCozaSiteManagement\CacheHelper::is_external_cache_available(),
         ];
 
         if ($cached_data !== false && isset($cached_data['cache_metadata'])) {
             $status['created_at'] = $cached_data['cache_metadata']['created_at'];
             $status['expires_at'] = $cached_data['cache_metadata']['expires_at'];
             $status['sites_in_cache'] = count($cached_data['sites_with_clients']);
+            $status['cache_metadata_version'] = $cached_data['cache_metadata']['cache_version'];
         }
 
         return $status;

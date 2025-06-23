@@ -28,7 +28,7 @@ return array(
     'settings' => array(
         'enable_debug' => defined('WP_DEBUG') && WP_DEBUG,
         'enable_logging' => true,
-        'cache_duration' => 3600, // 1 hour
+        'cache_duration' => DAY_IN_SECONDS, // 24 hours (matches Redis cache expiration)
         'items_per_page' => 20,
         'max_search_results' => 100,
         'enable_search' => true,
@@ -150,16 +150,26 @@ return array(
     ),
 
     /**
-     * Cache configuration
+     * Cache configuration for Redis object caching
      */
     'cache' => array(
         'enable_caching' => true,
-        'default_expiration' => 3600, // 1 hour
+        'cache_type' => 'redis_object_cache', // Redis object caching with versioning
+        'cache_group' => 'wecoza_sites_debug', // Main cache group for all plugin operations
+        'default_expiration' => DAY_IN_SECONDS, // 24 hours (1 day)
+        'cache_versioning' => true, // Enable cache versioning for bulk invalidation
         'cache_groups' => array(
-            'sites' => 1800, // 30 minutes
-            'clients' => 3600, // 1 hour
-            'search_results' => 900, // 15 minutes
+            'sites' => DAY_IN_SECONDS, // 24 hours for sites data
+            'clients' => DAY_IN_SECONDS, // 24 hours for clients data
+            'debug' => DAY_IN_SECONDS, // 24 hours for debug data
+            'search_results' => 900, // 15 minutes for search results
         ),
+        'cache_keys' => array(
+            'sites_debug' => 'wecoza_sites_debug_cache',
+            'sites_list' => 'wecoza_sites_list_cache',
+            'clients_list' => 'wecoza_clients_list_cache',
+        ),
+        'legacy_support' => true, // Support for legacy transient cleanup
     ),
 
     /**

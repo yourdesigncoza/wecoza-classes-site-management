@@ -31,8 +31,8 @@ class WeCoza_Site_Management_Uninstaller {
         // Clear all plugin options
         self::clear_plugin_options();
 
-        // Clear all transients
-        self::clear_all_transients();
+        // Clear all cache and transients
+        self::clear_all_cache();
 
         // Remove upload directories (optional - commented out for safety)
         // self::remove_upload_directories();
@@ -70,19 +70,39 @@ class WeCoza_Site_Management_Uninstaller {
     }
 
     /**
-     * Clear all plugin transients
+     * Clear all plugin cache and transients
      *
      * @since 1.0.0
      */
-    private static function clear_all_transients() {
+    private static function clear_all_cache() {
         global $wpdb;
-        
-        // Clear transients
+
+        // Load cache helper if not already loaded
+        if (!class_exists('WeCozaSiteManagement\\CacheHelper')) {
+            require_once WECOZA_SITE_MANAGEMENT_INCLUDES_DIR . 'class-cache-helper.php';
+        }
+
+        // Clear Redis object cache using versioning
+        \WeCozaSiteManagement\CacheHelper::clear_all();
+
+        // Clear cache version option
+        delete_option(\WeCozaSiteManagement\CacheHelper::CACHE_VERSION_OPTION);
+
+        // Clear legacy transients for complete cleanup
         $wpdb->query(
             $wpdb->prepare(
                 "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
                 '_transient_wecoza_site_management_%',
                 '_transient_timeout_wecoza_site_management_%'
+            )
+        );
+
+        // Clear any remaining versioned transients
+        $wpdb->query(
+            $wpdb->prepare(
+                "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
+                '_transient_wecoza_sites_debug_%',
+                '_transient_timeout_wecoza_sites_debug_%'
             )
         );
     }

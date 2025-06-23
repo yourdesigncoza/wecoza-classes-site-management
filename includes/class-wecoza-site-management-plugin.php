@@ -47,6 +47,9 @@ class WeCoza_Site_Management_Plugin {
      * Load required dependencies
      */
     private function load_dependencies() {
+        // Load cache helper for Redis object caching
+        require_once WECOZA_SITE_MANAGEMENT_INCLUDES_DIR . 'class-cache-helper.php';
+
         // Load the autoloader and bootstrap
         require_once WECOZA_SITE_MANAGEMENT_APP_DIR . 'bootstrap.php';
     }
@@ -159,20 +162,19 @@ class WeCoza_Site_Management_Plugin {
     }
 
     /**
-     * Clear sites cache transients
+     * Clear sites cache using Redis object caching with versioning
      * Proactive cache invalidation for immediate consistency
      *
      * @since 1.0.0
      * @return bool Success status
      */
     public static function clear_sites_cache() {
-        $cache_key = 'wecoza_sites_debug_cache_v1';
-
-        $result = delete_transient($cache_key);
+        // Use cache versioning for bulk invalidation
+        $result = \WeCozaSiteManagement\CacheHelper::clear_all();
 
         // Log cache clearing for debugging
         if (function_exists('WeCozaSiteManagement\\plugin_log')) {
-            \WeCozaSiteManagement\plugin_log('Sites cache cleared proactively: ' . ($result ? 'success' : 'failed'));
+            \WeCozaSiteManagement\plugin_log('Sites cache cleared proactively using version bump: ' . ($result ? 'success' : 'failed'));
         }
 
         return $result;

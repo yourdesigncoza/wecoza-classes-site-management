@@ -24,6 +24,16 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+
+if ( function_exists('wp_cache_get') && wp_using_ext_object_cache() ) {
+    error_log('✅ Redis object cache IS active');
+} else {
+    error_log('❌ Redis object cache NOT active');
+}
+
+
+// wp_cache_flush(); 
+
 // Define plugin constants
 // Use datetime for development to prevent caching issues
 define('WECOZA_SITE_MANAGEMENT_VERSION', date('YmdHis')); // e.g., 20250619213656

@@ -26,8 +26,8 @@ class WeCoza_Site_Management_Deactivator {
         // Clear scheduled events
         self::clear_scheduled_events();
 
-        // Clear transients
-        self::clear_transients();
+        // Clear cache using versioning
+        self::clear_cache();
 
         // Flush rewrite rules
         flush_rewrite_rules();
@@ -61,20 +61,28 @@ class WeCoza_Site_Management_Deactivator {
     }
 
     /**
-     * Clear plugin transients
+     * Clear plugin cache using Redis object caching with versioning
      *
      * @since 1.0.0
      */
-    private static function clear_transients() {
-        // Clear plugin-specific transients
-        $transients = array(
+    private static function clear_cache() {
+        // Load cache helper if not already loaded
+        if (!class_exists('WeCozaSiteManagement\\CacheHelper')) {
+            require_once WECOZA_SITE_MANAGEMENT_INCLUDES_DIR . 'class-cache-helper.php';
+        }
+
+        // Use cache versioning for bulk invalidation
+        \WeCozaSiteManagement\CacheHelper::clear_all();
+
+        // Also clear any legacy transients for backward compatibility
+        $legacy_transients = array(
             'wecoza_site_management_sites_cache',
             'wecoza_site_management_clients_cache',
             'wecoza_site_management_stats_cache',
-            'wecoza_sites_debug_cache_v1', // Current cache key
+            'wecoza_sites_debug_cache_v1', // Legacy cache key
         );
 
-        foreach ($transients as $transient) {
+        foreach ($legacy_transients as $transient) {
             delete_transient($transient);
         }
     }
